@@ -1,6 +1,17 @@
 import yfinance as yf
 from bs4 import BeautifulSoup
 import requests as rq
+from snowflake.snowpark import Session
+import pandas as pd
+
+SNOWFLAKE_CONN = {}
+
+
+def load_data_to_snowflake(df : pd.DataFrame, table_name, session : Session):
+    df.columns = [col[0] for col in data.columns]
+    df['Date'] = df.index.astype(str)
+    df = df.reset_index(drop=True)
+    session.write_pandas(df=df, table_name=table_name, auto_create_table=True)
 
 def get_ticker(company_name):
     yfinance = "https://query2.finance.yahoo.com/v1/finance/search"
@@ -37,14 +48,20 @@ def get_stoxx600_symbols():
 
     for company in companies:
         ticker_name = get_ticker(company)
+        print(f'Ticker for {company}')
         if ticker_name != "N/A":
             symbols.append(ticker_name)
 
-    return symbols
+    return symbols 
 
 symbols = get_stoxx600_symbols()
 print(f"Found {len(symbols)} symbols")
 
+session = Session.builder.configs(SNOWFLAKE_CONN).create()
+
 for symbol in symbols:
-    ticker = yf.Ticker(symbol)
-    print(f"{symbol} is {ticker.info.get('longName', 'Not found')}")
+    data = yf.download(symbol)
+    table_name = f'stock_{symbol}'.upper()
+    load_data_to_snowflake(data, table_name, session)
+
+session.close()
