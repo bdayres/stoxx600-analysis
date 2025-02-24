@@ -1,6 +1,7 @@
 beautifulsoup4
 yfinance
 requests
+snowflake-snowpark-python
 snowflake-snowpark-python[pandas]
 plotly
 streamlit
