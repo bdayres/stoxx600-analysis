@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
 
-def show_candles(df : pd.DataFrame, start, end):
+def show_candles(df : pd.DataFrame, start, end, scale):
     interval_df = df.loc[start:end]
     fig = go.Figure(data=[go.Candlestick(
         x=interval_df.index,
@@ -17,7 +17,7 @@ def show_candles(df : pd.DataFrame, start, end):
     fig.update_layout(xaxis_rangeslider_visible=False)
     fig.update_xaxes(rangebreaks=[
         { 'pattern': 'day of week', 'bounds': [6, 1]}
-    ])
+    ], type=scale)
     st.plotly_chart(fig)
 
 # Write directly to the app
@@ -37,6 +37,9 @@ if names:
     stock_values_df = session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
     stock_values_df['Date'] = pd.to_datetime(stock_values_df['Date'])
     stock_values_df.set_index('Date', inplace=True)
-    start = st.date_input("Start")
+    start = st.date_input("Start", value='2020-01-01')
     end = st.date_input("End", value='today')
-    show_candles(stock_values_df, start, end)
+
+    scale = "log" if st.checkbox("Logarithmic scale") else "linear"
+
+    show_candles(stock_values_df, start, end, scale)
