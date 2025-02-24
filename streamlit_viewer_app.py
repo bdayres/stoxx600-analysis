@@ -14,6 +14,8 @@ def show_candles(df : pd.DataFrame, start, end):
         low=interval_df['Low'],
         close=interval_df['Close']
     )])
+    fig.update_layout(xaxis_rangeslider_visible=False)
+    fig.update_xaxes(bounds=["sat", "mon"])
     st.plotly_chart(fig)
 
 # Write directly to the app
