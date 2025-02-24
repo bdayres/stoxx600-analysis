@@ -1,14 +1,13 @@
+from time import sleep
 import yfinance as yf
 from bs4 import BeautifulSoup
 import requests as rq
 from snowflake.snowpark import Session
 import pandas as pd
 
-SNOWFLAKE_CONN = {}
-
 
 def load_data_to_snowflake(df : pd.DataFrame, table_name, session : Session):
-    df.columns = [col[0] for col in data.columns]
+    df.columns = [col[0] for col in df.columns]
     df['Date'] = df.index.astype(str)
     df = df.reset_index(drop=True)
     session.write_pandas(df=df, table_name=table_name, auto_create_table=True)
@@ -54,14 +53,41 @@ def get_stoxx600_symbols():
 
     return symbols 
 
-symbols = get_stoxx600_symbols()
-print(f"Found {len(symbols)} symbols")
+def create_name_to_symbol_db(session : Session, symbols):
+    tickers = yf.Tickers(symbols)
+    infos = {"NAME":[], "SYMBOL":[]}
+    for _, ticker in tickers.tickers.items():
+        sleep(1)
+        if "shortName" in ticker.info and "symbol" in ticker.info:
+            infos["NAME"].append(ticker.info["shortName"])
+            infos["SYMBOL"].append(ticker.info["symbol"])
+            print(f'{ticker.info["shortName"]} is {ticker.info["symbol"]}')
+    df = pd.DataFrame(infos)
+    session.write_pandas(df=df, table_name="NAME_SYMBOL", auto_create_table=True)
 
-session = Session.builder.configs(SNOWFLAKE_CONN).create()
 
-for symbol in symbols:
-    data = yf.download(symbol)
-    table_name = f'stock_{symbol}'.upper()
-    load_data_to_snowflake(data, table_name, session)
+def send_stoxx600_to_snoflake(session):
 
-session.close()
+    symbols = get_stoxx600_symbols()
+    print(f"Found {len(symbols)} symbols")
+
+
+    for symbol in symbols:
+        data = yf.download(symbol)
+        table_name = f'stock_{symbol}'.upper()
+        load_data_to_snowflake(data, table_name, session)
+
+
+
+def main():
+    session = Session.builder.config("connection_name", "connection").create()
+    # session = None
+
+    # send_stoxx600_to_snoflake(session)
+    symbols = get_stoxx600_symbols()
+    create_name_to_symbol_db(session, symbols)
+
+    session.close()
+
+if __name__ == '__main__':
+    main()
