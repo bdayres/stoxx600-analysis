@@ -15,7 +15,9 @@ def show_candles(df : pd.DataFrame, start, end):
         close=interval_df['Close']
     )])
     fig.update_layout(xaxis_rangeslider_visible=False)
-    fig.update_xaxes(bounds=["sat", "mon"])
+    fig.update_xaxes(rangebreaks=[
+        { 'pattern': 'day of week', 'bounds': [6, 1]}
+    ])
     st.plotly_chart(fig)
 
 # Write directly to the app
