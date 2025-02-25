@@ -76,9 +76,9 @@ def main():
         scale = None
 
         with style_col:
-            style = st.segmented_control("Distance Measured", options=STYLE_MAP.keys(), format_func=lambda option: STYLE_MAP[option], selection_mode="single")
+            style = st.segmented_control("Style", options=STYLE_MAP.keys(), format_func=lambda option: STYLE_MAP[option], selection_mode="single", default="close")
         with scale_col:
-            scale = st.segmented_control("Distance Measured", options=SCALE_MAP.keys(), format_func=lambda option: SCALE_MAP[option], selection_mode="single")
+            scale = st.segmented_control("Scale", options=SCALE_MAP.keys(), format_func=lambda option: SCALE_MAP[option], selection_mode="single", default="linear")
 
         plot_type = st.selectbox("Plot type", ("Rolling Window", "Directional Change", "Perceptually Important Points"))
 
