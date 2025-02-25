@@ -7,6 +7,15 @@ import plotly.graph_objects as go
 from plotter import plot_tops_and_bottom
 import technical_analysis as ta
 
+def render_rolling_window(data : pd.DataFrame, style, scale):
+    order = st.number_input("Order", min_value=1, step=1, value=10)
+    tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), order)
+    fig = plot_tops_and_bottom(data, tops, bottoms, style)
+    if scale == "log":
+        fig.update_yaxes(type="log")
+    st.plotly_chart(fig)
+
+
 def main():
     st.title("Stoxx600 Viewer App 💸")
 
@@ -26,14 +35,21 @@ def main():
         # start = st.date_input("Start", value='2020-01-01')
         # end = st.date_input("End", value='today')
 
-        tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), 10)
+        style_col, scale_col = st.columns(2)
 
-        style = st.selectbox("Plot style", ("close", "candle"), index=0)
-        scale = st.selectbox("Scale", ("lin", "log"), index=0)
+        style = None
+        scale = None
 
-        fig = plot_tops_and_bottom(stock_values_df, tops, bottoms, style)
-        if scale == "log":
-            fig.update_yaxes(type="log")
-        st.plotly_chart(fig)
+        with style_col:
+            style = st.selectbox("Plot style", ("close", "candle"), index=0)
+        with scale_col:
+            scale = st.selectbox("Scale", ("lin", "log"), index=0)
+
+        plot_type = st.selectbox("Plot type", ("Rolling Window", "Directional Change", "Perceptually Important Points"))
+
+        if plot_type == "Rolling Window":
+            render_rolling_window()
+
+        
 
 main()
