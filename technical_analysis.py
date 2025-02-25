@@ -140,6 +140,35 @@ def pips(data: np.ndarray, n_pips: int, dist_measure: int):
 
     return pips_x, pips_y
 
+def naive_sup_res(points, sigma, type="tops", min_challenge=2):
+    # On parcours tout les points
+    # Pour chaque point, on parcour les point d'après
+    #   - Si on dépasse, on annule
+    #   - Si on reste dedans, on continue
+    #   - Si on challenge, on continue et on compte
+
+    sup_res = []
+    i = 0
+
+    while i < len(points):
+        count = 0
+        error_margin = points[i][2] * sigma
+        j = 0
+        for next_point in points[i+1:]:
+            if type == "tops" and next_point[2] > points[i][2] + error_margin:
+                break
+            if type == "bottoms" and next_point[2] < points[i][2] - error_margin:
+                break
+            if next_point[2] > points[i][2] - error_margin and next_point[2] < points[i][2] + error_margin:
+                count += 1
+            j += 1
+        if count >= min_challenge:
+            sup_res.append([points[i][2], points[i][1], points[i + j][1]])
+            i += j
+        else:
+            i += 1
+    return sup_res
+
 def test_rolling_window(close : pd.Series, idx : pd.Index, order):
     tops, bottoms = rolling_window(close.to_numpy(), order)
     close.plot()
@@ -175,13 +204,27 @@ def test_pips(close : pd.Series, nb_points, measure):
     plt.yscale('log')
     plt.show()
 
+def test_naive_sup_res(close : pd.Series, tops, bottoms, sigma, min_challenge):
+    close.plot()
+    res = naive_sup_res(tops, sigma, type="tops", min_challenge=min_challenge)
+    sup = naive_sup_res(bottoms, sigma, type="bottoms", min_challenge=min_challenge)
+
+    plt.hlines(y=[line[0] for line in res], xmin=[idx[line[1]] for line in res], xmax=[idx[line[2]] for line in res], colors="red")
+    plt.hlines(y=[line[0] for line in sup], xmin=[idx[line[1]] for line in sup], xmax=[idx[line[2]] for line in sup], colors="green")
+    plt.show()
+
+
+
 if __name__ == '__main__':
     hsbc = pd.read_csv("hsbc_daily.csv")
     hsbc['Date'] = pd.to_datetime(hsbc['Date'])
     hsbc.set_index('Date')
     idx = hsbc.index
 
-    test_rolling_window(hsbc['Close'], idx, 100)
-    test_directional_change(hsbc['Close'], hsbc['High'], hsbc['Low'], idx, 0.2)
-    test_pips(hsbc['Close'], 5, 3)
+    tops, bottoms = rolling_window(hsbc['Close'], 20)
+    test_naive_sup_res(hsbc['Close'], tops, bottoms, 0.02, 2)
+
+    # test_rolling_window(hsbc['Close'], idx, 100)
+    # test_directional_change(hsbc['Close'], hsbc['High'], hsbc['Low'], idx, 0.2)
+    # test_pips(hsbc['Close'], 5, 3)
 

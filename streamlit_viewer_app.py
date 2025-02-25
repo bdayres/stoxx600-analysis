@@ -4,7 +4,7 @@ from snowflake.snowpark.functions import col
 import pandas as pd
 import plotly.graph_objects as go
 
-from plotter import plot_tops_and_bottom
+import plotter as pt
 import technical_analysis as ta
 
 DIST_MAP = {
@@ -23,33 +23,6 @@ STYLE_MAP = {
     "candle": "Candle Lights"
 }
 
-def render_rolling_window(data : pd.DataFrame, style, scale):
-    order = st.number_input("Order", min_value=1, step=1, value=10)
-    tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), order)
-    fig = plot_tops_and_bottom(data, tops, bottoms, style)
-    fig.update_yaxes(type=scale)
-    st.plotly_chart(fig)
-
-def render_directional_change(data : pd.DataFrame, style, scale):
-    sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
-    tops, bottoms = ta.directional_change(data["Close"].to_numpy(), data["High"].to_numpy(), data["Low"].to_numpy(), sigma)
-    fig = plot_tops_and_bottom(data, tops, bottoms, style)
-    fig.update_yaxes(type=scale)
-    st.plotly_chart(fig)
-
-def render_pips(data : pd.DataFrame, style, scale):
-    npoint_col, dist_col = st.columns(2)
-    nb_points = None
-    distance_type = None
-    with npoint_col:
-        nb_points = st.number_input("Number of Points", min_value=5, step=1, value=5)
-    with dist_col:
-        distance_type = st.segmented_control("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option], selection_mode="single")
-    
-    tops, bottoms = ta.pips(data["Close"].to_numpy(), nb_points, distance_type)
-    fig = plot_tops_and_bottom(data, tops, bottoms, style)
-    fig.update_yaxes(type=scale)
-    st.plotly_chart(fig)
 
 def main():
     st.title("Stoxx600 Viewer App 💸")
@@ -82,12 +55,30 @@ def main():
 
         plot_type = st.selectbox("Plot type", ("Rolling Window", "Directional Change", "Perceptually Important Points"))
 
-        if plot_type == "Rolling Window":
-            render_rolling_window(stock_values_df, style, scale)
-        elif plot_type == "Directional Change":
-            render_directional_change(stock_values_df, style, scale)
-        elif plot_type == "Perceptually Important Points":
-            render_pips(stock_values_df, style, scale)
+        if style and scale:
+            tops, bottoms = None, None
+
+            if plot_type == "Rolling Window":
+                order = st.number_input("Order", min_value=1, step=1, value=10)
+                tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), order)
+            elif plot_type == "Directional Change":
+                sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
+                tops, bottoms = ta.directional_change(stock_values_df["Close"].to_numpy(), stock_values_df["High"].to_numpy(), stock_values_df["Low"].to_numpy(), sigma)
+            elif plot_type == "Perceptually Important Points":
+                npoint_col, dist_col = st.columns(2)
+                nb_points = None
+                distance_type = None
+                with npoint_col:
+                    nb_points = st.number_input("Number of Points", min_value=5, step=1, value=5)
+                with dist_col:
+                    distance_type = st.segmented_control("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option], selection_mode="single")
+                
+                tops, bottoms = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
+            
+            fig = pt.plot_prices(stock_values_df, style)
+            fig = pt.plot_tops_and_bottom(fig, stock_values_df, tops, bottoms)
+            fig.update_yaxes(type=scale)
+            st.plotly_chart(fig)
 
         
 main()
