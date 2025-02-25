@@ -41,7 +41,7 @@ def main():
         # start = st.date_input("Start", value='2020-01-01')
         # end = st.date_input("End", value='today')
 
-        tops, bottoms = ta.rolling_window(stock_values_df["Close"], 10)
+        tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), 10)
         fig = plot_tops_and_bottom(stock_values_df, tops, bottoms)
         st.plotly_chart(fig)
 
