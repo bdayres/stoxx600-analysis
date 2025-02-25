@@ -13,20 +13,28 @@ DIST_MAP = {
     3: "Vertical Distance"
 }
 
+SCALE_MAP = {
+    "linear": "Linear",
+    "log": "Logarithmic"
+}
+
+STYLE_MAP = {
+    "close": "Closing Prices",
+    "candle": "Candle Lights"
+}
+
 def render_rolling_window(data : pd.DataFrame, style, scale):
     order = st.number_input("Order", min_value=1, step=1, value=10)
     tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), order)
     fig = plot_tops_and_bottom(data, tops, bottoms, style)
-    if scale == "log":
-        fig.update_yaxes(type="log")
+    fig.update_yaxes(type=scale)
     st.plotly_chart(fig)
 
 def render_directional_change(data : pd.DataFrame, style, scale):
     sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
     tops, bottoms = ta.directional_change(data["Close"].to_numpy(), data["High"].to_numpy(), data["Low"].to_numpy(), sigma)
     fig = plot_tops_and_bottom(data, tops, bottoms, style)
-    if scale == "log":
-        fig.update_yaxes(type="log")
+    fig.update_yaxes(type=scale)
     st.plotly_chart(fig)
 
 def render_pips(data : pd.DataFrame, style, scale):
@@ -40,8 +48,7 @@ def render_pips(data : pd.DataFrame, style, scale):
     
     tops, bottoms = ta.pips(data["Close"].to_numpy(), nb_points, distance_type)
     fig = plot_tops_and_bottom(data, tops, bottoms, style)
-    if scale == "log":
-        fig.update_yaxes(type="log")
+    fig.update_yaxes(type=scale)
     st.plotly_chart(fig)
 
 def main():
@@ -69,9 +76,9 @@ def main():
         scale = None
 
         with style_col:
-            style = st.selectbox("Plot style", ("close", "candle"), index=0)
+            style = st.segmented_control("Distance Measured", options=STYLE_MAP.keys(), format_func=lambda option: STYLE_MAP[option], selection_mode="single")
         with scale_col:
-            scale = st.selectbox("Scale", ("lin", "log"), index=0)
+            scale = st.segmented_control("Distance Measured", options=SCALE_MAP.keys(), format_func=lambda option: SCALE_MAP[option], selection_mode="single")
 
         plot_type = st.selectbox("Plot type", ("Rolling Window", "Directional Change", "Perceptually Important Points"))
 
