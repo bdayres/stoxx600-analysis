@@ -28,6 +28,7 @@ def plot_prices(df : pd.DataFrame, mode="close"):
     fig.update_yaxes(rangebreaks=[
         { 'pattern': 'day of week', 'bounds': [6, 1]}
     ])
+    return fig
 
 def plot_tops_and_bottom(fig : go.Figure, df : pd.DataFrame, tops=None, bottoms=None):
     idx = df.index
