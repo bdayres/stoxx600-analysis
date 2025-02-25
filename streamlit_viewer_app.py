@@ -23,6 +23,21 @@ STYLE_MAP = {
     "candle": "Candle Lights"
 }
 
+def render_sup_res(fig, data, tops, bottoms):
+    challenge_col, sigma_col = st.columns(2)
+    min_challenge, sigma = None, None
+    
+    with challenge_col:
+        min_challenge = st.number_input("Minimum Challenge", 1, None, 2, 1)
+    
+    with sigma_col:
+        sigma = st.number_input("Margin", 0., None, 0.02, 0.01)
+    
+    sup = ta.naive_sup_res(bottoms, sigma, "bottoms", min_challenge)
+    res = ta.naive_sup_res(tops, sigma, "tops", min_challenge)
+    fig = pt.plot_sup_and_res(fig, data, sup, res)
+
+    return fig
 
 def main():
     st.title("Stoxx600 Viewer App 💸")
@@ -78,17 +93,18 @@ def main():
             fig = pt.plot_prices(stock_values_df, style)
 
             tb_col, sr_col = st.columns(2)
+            show_sup_res = None
 
             with tb_col:
                 if st.toggle("Show tops and bottoms", True):
                     fig = pt.plot_tops_and_bottom(fig, stock_values_df, tops, bottoms)
 
             with sr_col:
-                if st.toggle("Show support and resistances"):
-                    sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2)
-                    res = ta.naive_sup_res(tops, 0.02, "tops", 2)
-                    fig = pt.plot_sup_and_res(fig, stock_values_df, sup, res)
-
+                show_sup_res = st.toggle("Show support and resistances")
+            
+            if show_sup_res:
+                fig = render_sup_res(fig, stock_values_df, tops, bottoms)
+            
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
 
