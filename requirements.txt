@@ -5,3 +5,4 @@ snowflake-snowpark-python
 snowflake-snowpark-python[pandas]
 plotly
 streamlit
+matplotlib

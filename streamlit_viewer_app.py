@@ -38,8 +38,8 @@ def main():
         stock_values_df = session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
         stock_values_df['Date'] = pd.to_datetime(stock_values_df['Date'])
         stock_values_df.set_index('Date', inplace=True)
-        start = st.date_input("Start", value='2020-01-01')
-        end = st.date_input("End", value='today')
+        # start = st.date_input("Start", value='2020-01-01')
+        # end = st.date_input("End", value='today')
 
         tops, bottoms = ta.rolling_window(stock_values_df["Close"], 10)
         fig = plot_tops_and_bottom(stock_values_df, tops, bottoms)
