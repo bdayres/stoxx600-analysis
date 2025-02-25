@@ -48,7 +48,7 @@ def main():
         plot_type = st.selectbox("Plot type", ("Rolling Window", "Directional Change", "Perceptually Important Points"))
 
         if plot_type == "Rolling Window":
-            render_rolling_window()
+            render_rolling_window(stock_values_df, style, scale)
 
         
 
