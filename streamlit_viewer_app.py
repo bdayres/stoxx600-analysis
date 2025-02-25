@@ -77,6 +77,12 @@ def main():
             
             fig = pt.plot_prices(stock_values_df, style)
             fig = pt.plot_tops_and_bottom(fig, stock_values_df, tops, bottoms)
+
+            if st.toggle("Show support and resistances"):
+                sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2)
+                res = ta.naive_sup_res(tops, 0.02, "tops", 2)
+                fig = pt.plot_sup_and_res(fig, stock_values_df, sup, res)
+
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
 
