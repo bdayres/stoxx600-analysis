@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def rw_top(data: np.array, curr_index: int, order: int) -> bool:
+def rw_top(data: np.ndarray, curr_index: int, order: int) -> bool:
     if curr_index < order * 2 + 1:
         return False
 
@@ -16,7 +16,7 @@ def rw_top(data: np.array, curr_index: int, order: int) -> bool:
     
     return top
 
-def rw_bottom(data: np.array, curr_index: int, order: int) -> bool:
+def rw_bottom(data: np.ndarray, curr_index: int, order: int) -> bool:
     if curr_index < order * 2 + 1:
         return False
 
@@ -30,7 +30,7 @@ def rw_bottom(data: np.array, curr_index: int, order: int) -> bool:
     
     return bottom
 
-def rolling_window(data: np.array, order:int):
+def rolling_window(data: np.ndarray, order:int):
     tops = []
     bottoms = []
     for i in range(len(data)):
@@ -50,7 +50,7 @@ def rolling_window(data: np.array, order:int):
     
     return tops, bottoms
 
-def directional_change(close: np.array, high: np.array, low: np.array, sigma: float):
+def directional_change(close: np.ndarray, high: np.ndarray, low: np.ndarray, sigma: float):
     
     up_zig = True # Last extreme is a bottom. Next is a top. 
     tmp_max = high[0]
@@ -93,7 +93,7 @@ def directional_change(close: np.array, high: np.array, low: np.array, sigma: fl
 
     return tops, bottoms
 
-def pips(data: np.array, n_pips: int, dist_measure: int):
+def pips(data: np.ndarray, n_pips: int, dist_measure: int):
     # dist_measure
     # 1 = Euclidean Distance
     # 2 = Perpendicular Distance
