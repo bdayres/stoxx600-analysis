@@ -163,7 +163,7 @@ def naive_sup_res(points, sigma, type="tops", min_challenge=2):
                 count += 1
             j += 1
         if count >= min_challenge:
-            sup_res.append([points[i][2], points[i][1], points[i + j][1]])
+            sup_res.append([points[i][2], points[i][1], points[i + j + 1][1]])
             i += j
         else:
             i += 1
