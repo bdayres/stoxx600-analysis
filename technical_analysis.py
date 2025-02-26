@@ -140,13 +140,16 @@ def pips(data: np.ndarray, n_pips: int, dist_measure: int):
 
     return pips_x, pips_y
 
-def naive_sup_res(points, sigma, type="tops", min_challenge=2):
-    # On parcours tout les points
-    # Pour chaque point, on parcour les point d'après
-    #   - Si on dépasse, on annule
-    #   - Si on reste dedans, on continue
-    #   - Si on challenge, on continue et on compte
+def fuse_similar_sup_res(sup_res : list, sigma):
+    for i, curr_line in enumerate(sup_res):
+        for next_line in sup_res[i+1:]:
+            if next_line[1] > curr_line[2]:
+                break
+            if abs(next_line[0] - curr_line[0]) < sigma:
+                sup_res.remove(next_line)
+    return sup_res
 
+def naive_sup_res(points, sigma, type="tops", min_challenge=2, fuse_tolerance=0.4):
     sup_res = []
     i = 0
 
@@ -164,10 +167,8 @@ def naive_sup_res(points, sigma, type="tops", min_challenge=2):
             j += 1
         if count >= min_challenge:
             sup_res.append([points[i][2], points[i][1], points[min(i + j + 1, len(points) - 1)][1]])
-            i += j
-        else:
-            i += 1
-    return sup_res
+        i += 1
+    return fuse_similar_sup_res(sup_res, fuse_tolerance)
 
 def test_rolling_window(close : pd.Series, idx : pd.Index, order):
     tops, bottoms = rolling_window(close.to_numpy(), order)
@@ -222,7 +223,7 @@ if __name__ == '__main__':
     idx = hsbc.index
 
     tops, bottoms = rolling_window(hsbc['Close'], 20)
-    test_naive_sup_res(hsbc['Close'], tops, bottoms, 0.02, 2)
+    test_naive_sup_res(hsbc['Close'], tops, bottoms, 0.02, 3)
 
     # test_rolling_window(hsbc['Close'], idx, 100)
     # test_directional_change(hsbc['Close'], hsbc['High'], hsbc['Low'], idx, 0.2)

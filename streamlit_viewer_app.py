@@ -24,8 +24,8 @@ STYLE_MAP = {
 }
 
 def render_sup_res(fig, data, tops, bottoms):
-    challenge_col, sigma_col = st.columns(2)
-    min_challenge, sigma = None, None
+    challenge_col, sigma_col, fuse_col = st.columns(3)
+    min_challenge, sigma, fuse_tolerance = None, None, None
     
     with challenge_col:
         min_challenge = st.number_input("Minimum Challenge", 1, None, 2, 1)
@@ -33,8 +33,11 @@ def render_sup_res(fig, data, tops, bottoms):
     with sigma_col:
         sigma = st.number_input("Margin", 0., None, 0.02, 0.01)
     
-    sup = ta.naive_sup_res(bottoms, sigma, "bottoms", min_challenge)
-    res = ta.naive_sup_res(tops, sigma, "tops", min_challenge)
+    with fuse_col:
+        fuse_tolerance = st.number_input("Fuse Tolerance", 0., None, 0.5, 0.1)
+
+    sup = ta.naive_sup_res(bottoms, sigma, "bottoms", min_challenge, fuse_tolerance)
+    res = ta.naive_sup_res(tops, sigma, "tops", min_challenge, fuse_tolerance)
     fig = pt.plot_sup_and_res(fig, data, sup, res)
 
     return fig
