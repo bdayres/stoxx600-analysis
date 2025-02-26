@@ -85,7 +85,7 @@ def main():
                     price_type = st.toggle("High and Low")
                 
                 if price_type:
-                    tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy, order)
+                    tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy(), order)
                     _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
                 else:
                     tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), order)
