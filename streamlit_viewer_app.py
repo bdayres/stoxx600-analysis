@@ -34,7 +34,7 @@ def render_sup_res(fig, data, tops, bottoms):
         sigma = st.number_input("Margin", 0., None, 0.02, 0.01)
     
     with fuse_col:
-        fuse_tolerance = st.number_input("Fuse Tolerance", 0., None, 0.5, 0.1)
+        fuse_tolerance = st.number_input("Fuse Tolerance", 0., None, 0.02, 0.01)
 
     sup = ta.naive_sup_res(bottoms, sigma, "bottoms", min_challenge, fuse_tolerance)
     res = ta.naive_sup_res(tops, sigma, "tops", min_challenge, fuse_tolerance)

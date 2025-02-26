@@ -145,11 +145,11 @@ def fuse_similar_sup_res(sup_res : list, sigma):
         for next_line in sup_res[i+1:]:
             if next_line[1] > curr_line[2]:
                 break
-            if abs(next_line[0] - curr_line[0]) < sigma:
+            if abs(next_line[0] - curr_line[0]) < sigma * curr_line[0]:
                 sup_res.remove(next_line)
     return sup_res
 
-def naive_sup_res(points, sigma, type="tops", min_challenge=2, fuse_tolerance=0.4):
+def naive_sup_res(points, sigma, type="tops", min_challenge=2, fuse_tolerance=0.01):
     sup_res = []
     i = 0
 
