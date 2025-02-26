@@ -82,9 +82,9 @@ def main():
                 with order_col:
                     order = st.number_input("Order", min_value=1, step=1, value=10)
                 with type_col:
-                    price_type = st.toggle("High and Low")
+                    price_type = st.selectbox("Price Type",("Closing", "High and Low"))
                 
-                if price_type:
+                if price_type == "High and Low":
                     tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy(), order)
                     _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
                 else:
