@@ -117,7 +117,7 @@ def pips(data: np.ndarray, n_pips: int, dist_measure: int):
             time_diff = pips_x[right_adj] - pips_x[left_adj]
             price_diff = pips_y[right_adj] - pips_y[left_adj]
             slope = price_diff / time_diff
-            intercept = pips_y[left_adj] - pips_x[left_adj] * slope;
+            intercept = pips_y[left_adj] - pips_x[left_adj] * slope
 
             for i in range(pips_x[left_adj] + 1, pips_x[right_adj]):
                 

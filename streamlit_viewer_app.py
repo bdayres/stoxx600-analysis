@@ -77,8 +77,18 @@ def main():
             tops, bottoms = None, None
 
             if plot_type == "Rolling Window":
-                order = st.number_input("Order", min_value=1, step=1, value=10)
-                tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), order)
+                order_col, type_col = st.columns(2)
+                order, price_type = None, None
+                with order_col:
+                    order = st.number_input("Order", min_value=1, step=1, value=10)
+                with type_col:
+                    price_type = st.toggle("High and Low")
+                
+                if price_type:
+                    tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy, order)
+                    _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
+                else:
+                    tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), order)
             elif plot_type == "Directional Change":
                 sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
                 tops, bottoms = ta.directional_change(stock_values_df["Close"].to_numpy(), stock_values_df["High"].to_numpy(), stock_values_df["Low"].to_numpy(), sigma)
