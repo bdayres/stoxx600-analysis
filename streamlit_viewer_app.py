@@ -23,6 +23,17 @@ STYLE_MAP = {
     "candle": "Candle Lights"
 }
 
+POINT_MAP = {
+    "rw": "Rolling Window",
+    "dc": "Directional Change",
+    "pips": "Perceptually Important Points"
+}
+
+PRICE_MAP = {
+    "close": "Closing",
+    "hl": "High and Low"
+}
+
 def render_sup_res(fig, data, tops, bottoms):
     challenge_col, sigma_col, fuse_col = st.columns(3)
     min_challenge, sigma, fuse_tolerance = None, None, None
@@ -71,28 +82,28 @@ def main():
         with scale_col:
             scale = st.segmented_control("Scale", options=SCALE_MAP.keys(), format_func=lambda option: SCALE_MAP[option], selection_mode="single", default="linear")
 
-        plot_type = st.selectbox("Plot type", ("Rolling Window", "Directional Change", "Perceptually Important Points"))
+        plot_type = st.selectbox("Plot type", options = POINT_MAP.keys(), format_func=lambda option: POINT_MAP[option])
 
         if style and scale:
             tops, bottoms = None, None
 
-            if plot_type == "Rolling Window":
+            if plot_type == "rw":
                 order_col, type_col = st.columns(2)
                 order, price_type = None, None
                 with order_col:
                     order = st.number_input("Order", min_value=1, step=1, value=10)
                 with type_col:
-                    price_type = st.selectbox("Price Type",("Closing", "High and Low"))
+                    price_type = st.selectbox("Price Type", options = PRICE_MAP.keys(), format_func=lambda option: PRICE_MAP[option])
                 
                 if price_type == "High and Low":
                     tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy(), order)
                     _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
                 else:
                     tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), order)
-            elif plot_type == "Directional Change":
+            elif plot_type == "dc":
                 sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
                 tops, bottoms = ta.directional_change(stock_values_df["Close"].to_numpy(), stock_values_df["High"].to_numpy(), stock_values_df["Low"].to_numpy(), sigma)
-            elif plot_type == "Perceptually Important Points":
+            elif plot_type == "pips":
                 npoint_col, dist_col = st.columns(2)
                 nb_points = None
                 distance_type = None
@@ -113,9 +124,9 @@ def main():
                     fig = pt.plot_tops_and_bottom(fig, stock_values_df, tops, bottoms)
 
             with sr_col:
-                show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "Perceptually Important Points")
+                show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "pips")
             
-            if show_sup_res and plot_type != "Perceptually Important Points":
+            if show_sup_res and plot_type != "pips":
                 fig = render_sup_res(fig, stock_values_df, tops, bottoms)
             
             fig.update_yaxes(type=scale)
