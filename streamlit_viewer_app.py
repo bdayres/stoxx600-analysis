@@ -115,7 +115,7 @@ def main():
             with sr_col:
                 show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "Perceptually Important Points")
             
-            if show_sup_res and plot_type == "Perceptually Important Points":
+            if show_sup_res and plot_type != "Perceptually Important Points":
                 fig = render_sup_res(fig, stock_values_df, tops, bottoms)
             
             fig.update_yaxes(type=scale)
