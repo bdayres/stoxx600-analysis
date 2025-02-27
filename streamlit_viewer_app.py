@@ -54,6 +54,11 @@ def render_sup_res(fig, data, tops, bottoms):
     return fig
 
 def main():
+
+    st.set_page_config(
+        page_title="Stoxx600 Visual Analyser"
+    )
+
     st.title("Stoxx600 Viewer App 💸")
 
     cnx = st.connection('snowflake')
@@ -95,7 +100,7 @@ def main():
                 with type_col:
                     price_type = st.selectbox("Price Type", options = PRICE_MAP.keys(), format_func=lambda option: PRICE_MAP[option])
                 
-                if price_type == "High and Low":
+                if price_type == "hl":
                     tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy(), order)
                     _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
                 else:
