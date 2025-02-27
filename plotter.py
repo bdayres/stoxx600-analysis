@@ -61,6 +61,10 @@ def plot_sup_and_res(fig : go.Figure, df : pd.DataFrame, sup, res):
         fig.add_trace(go.Scatter(x=[idx[line[1]], idx[line[2]]], y=[line[0]]*2, mode="lines", showlegend=False, line=dict(color='red')))
     return fig
 
+def plot_strategy(fig : go.Figure, decisions):
+    for decision in decisions:
+        fig.add_vline(decision)
+
 def main():
     data = pd.read_csv("hsbc_daily.csv")
     data["Date"] = pd.to_datetime(data["Date"])
