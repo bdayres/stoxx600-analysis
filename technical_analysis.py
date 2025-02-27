@@ -109,7 +109,6 @@ def pips(data: np.ndarray, n_pips: int, dist_measure: int):
         md = 0.0 # Max distance
         md_i = -1 # Max distance index
         insert_index = -1
-        price = -1
 
         for k in range(0, curr_point - 1):
 
