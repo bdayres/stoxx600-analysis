@@ -24,7 +24,7 @@ def simulate(data : pd.DataFrame, strategy : Callable[[pd.DataFrame, int], int],
     return total_gain, decisions
 
 def monkey_strat(data : pd.DataFrame, current_position : int) -> int:
-    return random.randint(0, 100) > 95
+    return random.randint(0, 100) > 99
 
 def test_monkey(data : pd.DataFrame):
     gain, decisions = simulate(data, monkey_strat, 0)

@@ -62,8 +62,8 @@ def plot_sup_and_res(fig : go.Figure, df : pd.DataFrame, sup, res):
     return fig
 
 def plot_strategy(fig : go.Figure, decisions):
-    for decision in decisions:
-        fig.add_vline(decision)
+    for i, decision in enumerate(decisions):
+        fig.add_vline(decision, line_color="green" if i % 2 == 0 else "red")
     return fig
 
 def main():
