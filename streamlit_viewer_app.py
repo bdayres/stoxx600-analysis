@@ -101,7 +101,7 @@ def main():
                 with dist_col:
                     distance_type = st.segmented_control("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option], selection_mode="single")
                 
-                tops, _ = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
+                tops = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
             
             fig = pt.plot_prices(stock_values_df, style)
 
