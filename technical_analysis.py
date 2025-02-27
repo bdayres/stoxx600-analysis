@@ -102,11 +102,14 @@ def pips(data: np.ndarray, n_pips: int, dist_measure: int):
     pips_x = [0, len(data) - 1]  # Index
     pips_y = [data[0], data[-1]] # Price
 
+    points = [[0, pip_x, pip_y] for pip_x, pip_y in zip(pips_x, pips_y)]
+
     for curr_point in range(2, n_pips):
 
         md = 0.0 # Max distance
         md_i = -1 # Max distance index
         insert_index = -1
+        price = -1
 
         for k in range(0, curr_point - 1):
 
@@ -137,8 +140,9 @@ def pips(data: np.ndarray, n_pips: int, dist_measure: int):
 
         pips_x.insert(insert_index, md_i)
         pips_y.insert(insert_index, data[md_i])
+        points.insert(insert_index, [md_i, md_i, data[md_i]])
 
-    return pips_x, pips_y
+    return points
 
 def fuse_similar_sup_res(sup_res : list, sigma):
     for i, curr_line in enumerate(sup_res):
@@ -196,11 +200,11 @@ def test_directional_change(close : pd.Series, high : pd.Series, low : pd.Series
     plt.show()
 
 def test_pips(close : pd.Series, nb_points, measure):
-    pips_x, pips_y = pips(close.to_numpy(), nb_points, measure)
+    points = pips(close.to_numpy(), nb_points, measure)
     close.plot()
 
-    for i in range(5):
-        plt.plot(pips_x[i], pips_y[i], marker='o', color='red')
+    for point in points:
+        plt.plot(idx[point[1]], point[2], marker='o', color='green')
     
     plt.yscale('log')
     plt.show()
@@ -222,10 +226,10 @@ if __name__ == '__main__':
     hsbc.set_index('Date')
     idx = hsbc.index
 
-    tops, bottoms = rolling_window(hsbc['Close'], 20)
-    test_naive_sup_res(hsbc['Close'], tops, bottoms, 0.02, 3)
+    # tops, bottoms = rolling_window(hsbc['Close'], 20)
+    # test_naive_sup_res(hsbc['Close'], tops, bottoms, 0.02, 3)
 
     # test_rolling_window(hsbc['Close'], idx, 100)
     # test_directional_change(hsbc['Close'], hsbc['High'], hsbc['Low'], idx, 0.2)
-    # test_pips(hsbc['Close'], 5, 3)
+    test_pips(hsbc['Close'], 10, 3)
 

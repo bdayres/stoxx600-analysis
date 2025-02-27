@@ -101,7 +101,7 @@ def main():
                 with dist_col:
                     distance_type = st.segmented_control("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option], selection_mode="single")
                 
-                tops, bottoms = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
+                tops, _ = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
             
             fig = pt.plot_prices(stock_values_df, style)
 
@@ -109,11 +109,11 @@ def main():
             show_sup_res = None
 
             with tb_col:
-                if st.toggle("Show tops and bottoms", True):
+                if st.toggle("Show tops and bottoms"):
                     fig = pt.plot_tops_and_bottom(fig, stock_values_df, tops, bottoms)
 
             with sr_col:
-                show_sup_res = st.toggle("Show support and resistances")
+                show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "Perceptually Important Points")
             
             if show_sup_res:
                 fig = render_sup_res(fig, stock_values_df, tops, bottoms)
