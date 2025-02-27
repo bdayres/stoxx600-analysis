@@ -64,6 +64,7 @@ def plot_sup_and_res(fig : go.Figure, df : pd.DataFrame, sup, res):
 def plot_strategy(fig : go.Figure, decisions):
     for decision in decisions:
         fig.add_vline(decision)
+    return fig
 
 def main():
     data = pd.read_csv("hsbc_daily.csv")

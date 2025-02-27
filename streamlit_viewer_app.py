@@ -139,7 +139,7 @@ def main():
             if st.button("MONKEY TRADE !!!"):
                 gain, decisions = sim.simulate(stock_values_df, sim.monkey_strat, 0)
                 st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
-                pt.plot_strategy(fig, decisions)
+                fig = pt.plot_strategy(fig, decisions)
 
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
