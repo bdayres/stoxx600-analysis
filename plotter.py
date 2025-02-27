@@ -12,7 +12,8 @@ def plot_prices(df : pd.DataFrame, mode="close"):
             x=idx,
             y=df["Close"],
             mode="lines",
-            name="Closing prices"
+            name="Closing prices",
+            showlegend=True
         )])
         fig.update_layout(title="Closing prices")
     elif mode == "candle":
@@ -22,7 +23,8 @@ def plot_prices(df : pd.DataFrame, mode="close"):
             high=df['High'],
             low=df['Low'],
             close=df['Close'],
-            name="Prices"
+            name="Prices",
+            showlegend=True
         )])
         fig.update_layout(xaxis_rangeslider_visible=False, title="Candle prices")
     fig.update_yaxes(rangebreaks=[

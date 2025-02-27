@@ -99,7 +99,7 @@ def main():
                 with npoint_col:
                     nb_points = st.number_input("Number of Points", min_value=5, step=1, value=5)
                 with dist_col:
-                    distance_type = st.segmented_control("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option], selection_mode="single")
+                    distance_type = st.selectbox("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option])
                 
                 tops = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
             
