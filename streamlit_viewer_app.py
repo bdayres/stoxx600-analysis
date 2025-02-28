@@ -66,11 +66,11 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     strategy = None
     if strategy_choice == "monkey":
         probability = st.number_input("Monkey trade probabilty", 0, 100, 99)
-        strategy = sim.make_monkey(probability)
+        strategy = sim.make_monkey(probability, 0)
     elif strategy_choice == "breakout":
-        strategy = sim.make_breakout_oracle(tops, bottoms)
+        strategy = sim.make_breakout_oracle(tops, bottoms, 0)
     elif strategy_choice == "god":
-        strategy = sim.make_god_trading(tops, bottoms)
+        strategy = sim.make_god_trading(tops, bottoms, 0)
     gain, decisions = sim.simulate(data, strategy)
     st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]}")
     if st.toggle("Show trades"):

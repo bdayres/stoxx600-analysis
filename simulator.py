@@ -49,6 +49,8 @@ def make_breakout_oracle(tops, bottoms):
 
 def make_god_trading(tops, bottoms):
     def god_trading(data : pd.DataFrame, current_position : int) -> int:
+        if len(data) == 0:
+            return 0
         idx = data.index
         current_index = idx[-1]
         if current_position == 0:
