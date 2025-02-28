@@ -145,7 +145,9 @@ def main():
                 fig = pt.plot_strategy(fig, decisions)
 
             if st.button("Breakout Trading"):
-                gain, decisions(sim.simulate(stock_values_df, sim.make_breakout_oracle(sup, res)), 0)
+                gain, decisions = sim.simulate(stock_values_df, sim.make_breakout_oracle(sup, res), 0)
+                st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
+                fig = pt.plot_strategy(fig, decisions)
 
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
