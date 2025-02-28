@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Callable
 import random
+import technical_analysis as ta
 
 
 def simulate(data : pd.DataFrame, strategy : Callable[[pd.DataFrame, int], int], lookback):
@@ -33,11 +34,11 @@ def make_breakout_oracle(sup, res):
         current_index = data.index[-1]
         if current_position == 0:
             for line in res:
-                if line[2] == current_index:
+                if len(data) > line[2] and data.index[line[2]] == current_index:
                     return True
         elif current_position == 1:
             for line in sup:
-                if line[2] == current_index:
+                if len(data) > line[2] and data.index[line[2]] == current_index:
                     return True
         return False
     return breakout_oracle
@@ -47,8 +48,16 @@ def test_monkey(data : pd.DataFrame):
     buy_and_hold = data.iloc[-1]["Close"] / data.iloc[0]["Close"]
     print(gain, buy_and_hold)
 
+def test_breakout_oracle(data : pd.DataFrame):
+    tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
+    sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
+    res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
+    gain, decisions = simulate(data, make_breakout_oracle(sup, res), 1)
+    print(gain)
+
 if __name__ == '__main__':
     data = pd.read_csv("hsbc_daily.csv")
     data["Date"] = pd.to_datetime(data["Date"])
     data = data.set_index("Date")
-    test_monkey(data)
+    # test_monkey(data)
+    test_breakout_oracle(data)
