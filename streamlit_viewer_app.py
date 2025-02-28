@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 import plotter as pt
 import technical_analysis as ta
 
+import simulator as sim
+
 DIST_MAP = {
     1: "Euclidian Distance",
     2: "Manhattan Distance",
@@ -54,6 +56,11 @@ def render_sup_res(fig, data, tops, bottoms):
     return fig
 
 def main():
+
+    st.set_page_config(
+        page_title="Stoxx600 Visual Analyser"
+    )
+
     st.title("Stoxx600 Viewer App 💸")
 
     cnx = st.connection('snowflake')
@@ -95,7 +102,7 @@ def main():
                 with type_col:
                     price_type = st.selectbox("Price Type", options = PRICE_MAP.keys(), format_func=lambda option: PRICE_MAP[option])
                 
-                if price_type == "High and Low":
+                if price_type == "hl":
                     tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy(), order)
                     _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
                 else:
@@ -129,6 +136,11 @@ def main():
             if show_sup_res and plot_type != "pips":
                 fig = render_sup_res(fig, stock_values_df, tops, bottoms)
             
+            if st.button("MONKEY TRADE !!!"):
+                gain, decisions = sim.simulate(stock_values_df, sim.monkey_strat, 0)
+                st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
+                fig = pt.plot_strategy(fig, decisions)
+
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
 
