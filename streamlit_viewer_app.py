@@ -60,7 +60,7 @@ def main():
     session = cnx.session()
 
     stock_df = session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL")
-    names = st.multiselect("Stock list", stock_df.select(col("name")), max_selections=1)
+    names = st.selectbox("Stock list", stock_df.select(col("name")))
 
     if names:
         symbol_df = session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{names[0]}'").to_pandas()

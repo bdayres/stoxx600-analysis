@@ -1,3 +1,4 @@
+from time import sleep
 import technical_analysis as ta
 import pandas as pd
 import plotly.express as px
