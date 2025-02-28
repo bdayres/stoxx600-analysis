@@ -67,10 +67,10 @@ def main():
     session = cnx.session()
 
     stock_df = session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL")
-    names = st.selectbox("Stock list", stock_df.select(col("name")))
+    name = st.selectbox("Stock list", stock_df.select(col("name")))
 
-    if names:
-        symbol_df = session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{names[0]}'").to_pandas()
+    if name:
+        symbol_df = session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{name}'").to_pandas()
         symbol = symbol_df['SYMBOL'].iloc[0]
         
         stock_values_df = session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
