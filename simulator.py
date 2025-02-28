@@ -29,8 +29,12 @@ def make_monkey(probability):
         return random.randint(0, 100) > probability
     return monkey_strat
 
-def make_breakout_oracle(sup, res):
+def make_breakout_oracle(tops, bottoms):
+    sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
+    res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
     def breakout_oracle(data : pd.DataFrame, current_position : int) -> int:
+        if len(data) == 0:
+            return 0
         current_index = data.index[-1]
         if current_position == 0:
             for line in res:
@@ -43,6 +47,21 @@ def make_breakout_oracle(sup, res):
         return False
     return breakout_oracle
 
+def make_god_trading(tops, bottoms):
+    def god_trading(data : pd.DataFrame, current_position : int) -> int:
+        idx = data.index
+        current_index = idx[-1]
+        if current_position == 0:
+            for bottom in bottoms:
+                if len(data) > bottom[1] and idx[bottom[1]] == current_index:
+                    return True
+        elif current_position == 1:
+            for top in tops:
+                if len(data) > top[1] and idx[top[1]] == current_index:
+                    return True
+        return False
+    return god_trading
+
 def test_monkey(data : pd.DataFrame):
     gain, decisions = simulate(data, make_monkey(99), 0)
     buy_and_hold = data.iloc[-1]["Close"] / data.iloc[0]["Close"]
@@ -50,9 +69,11 @@ def test_monkey(data : pd.DataFrame):
 
 def test_breakout_oracle(data : pd.DataFrame):
     tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
-    sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
-    res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
-    gain, decisions = simulate(data, make_breakout_oracle(sup, res), 1)
+    gain, decisions = simulate(data, make_breakout_oracle(tops, bottoms), 1)
+    print(gain)
+
+def test_god_trading(data : pd.DataFrame):
+    gain, decisions = simulate(data, make_god_trading(data), 1)
     print(gain)
 
 if __name__ == '__main__':
@@ -60,4 +81,5 @@ if __name__ == '__main__':
     data["Date"] = pd.to_datetime(data["Date"])
     data = data.set_index("Date")
     # test_monkey(data)
-    test_breakout_oracle(data)
+    # test_breakout_oracle(data)
+    test_god_trading(data)

@@ -36,6 +36,12 @@ PRICE_MAP = {
     "hl": "High and Low"
 }
 
+STRATEGY_MAP = {
+    "monkey": "Monkey Trading",
+    "breakout": "Breakout Oracle",
+    "god": "God Trading"
+}
+
 def render_sup_res(fig, data, tops, bottoms):
     challenge_col, sigma_col, fuse_col = st.columns(3)
     min_challenge, sigma, fuse_tolerance = None, None, None
@@ -53,7 +59,26 @@ def render_sup_res(fig, data, tops, bottoms):
     res = ta.naive_sup_res(tops, sigma, "tops", min_challenge, fuse_tolerance)
     fig = pt.plot_sup_and_res(fig, data, sup, res)
 
-    return fig, sup, res
+    return fig
+
+def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
+    strategy_choice = st.selectbox("Trading strategy", options=STRATEGY_MAP.keys(), format_func=lambda option: STRATEGY_MAP[option])
+    strategy = None
+    if strategy_choice == "monkey":
+        probability = st.number_input("Monkey trade probabilty", 0, 100, 99)
+        strategy = sim.make_monkey(probability)
+    elif strategy_choice == "breakout":
+        strategy = sim.make_breakout_oracle(tops, bottoms)
+    elif strategy_choice == "god":
+        strategy = sim.make_god_trading(tops, bottoms)
+    gain, decisions = sim.simulate(data, strategy)
+    st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]}")
+    if st.toggle("Show trades"):
+        fig = pt.plot_strategy(fig, decisions)
+    return fig
+
+
+
 
 def main():
 
@@ -124,7 +149,6 @@ def main():
             fig = pt.plot_prices(stock_values_df, style)
 
             tb_col, sr_col = st.columns(2)
-            sup, res = [], []
             show_sup_res = None
 
             with tb_col:
@@ -135,19 +159,9 @@ def main():
                 show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "pips")
             
             if show_sup_res and plot_type != "pips":
-                fig, sup, res = render_sup_res(fig, stock_values_df, tops, bottoms)
+                fig = render_sup_res(fig, stock_values_df, tops, bottoms)
             
-            prob = st.number_input("Monkey trade probabilty", 0, 100, 95)
-
-            if st.button("MONKEY TRADE !!!"):
-                gain, decisions = sim.simulate(stock_values_df, sim.make_monkey(prob), 0)
-                st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
-                fig = pt.plot_strategy(fig, decisions)
-
-            if st.button("Breakout Trading"):
-                gain, decisions = sim.simulate(stock_values_df, sim.make_breakout_oracle(sup, res), 1)
-                st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
-                fig = pt.plot_strategy(fig, decisions)
+            render_strategies(fig, stock_values_df, tops, bottoms)
 
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
