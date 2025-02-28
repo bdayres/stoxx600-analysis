@@ -23,11 +23,13 @@ def simulate(data : pd.DataFrame, strategy : Callable[[pd.DataFrame, int], int],
             decisions.append(idx[i])
     return total_gain, decisions
 
-def monkey_strat(data : pd.DataFrame, current_position : int) -> int:
-    return random.randint(0, 100) > 99
+def make_monkey(probability):
+    def monkey_strat(data : pd.DataFrame, current_position : int) -> int:
+        return random.randint(0, 100) > probability
+    return monkey_strat
 
 def test_monkey(data : pd.DataFrame):
-    gain, decisions = simulate(data, monkey_strat, 0)
+    gain, decisions = simulate(data, make_monkey(99), 0)
     buy_and_hold = data.iloc[-1]["Close"] / data.iloc[0]["Close"]
     print(gain, buy_and_hold)
 

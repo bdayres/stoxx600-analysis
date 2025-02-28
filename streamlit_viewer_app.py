@@ -136,8 +136,10 @@ def main():
             if show_sup_res and plot_type != "pips":
                 fig = render_sup_res(fig, stock_values_df, tops, bottoms)
             
+            prob = st.number_input("Monkey trade probabilty", 0, 100, 95)
+
             if st.button("MONKEY TRADE !!!"):
-                gain, decisions = sim.simulate(stock_values_df, sim.monkey_strat, 0)
+                gain, decisions = sim.simulate(stock_values_df, sim.make_monkey(prob), 0)
                 st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
                 fig = pt.plot_strategy(fig, decisions)
 
