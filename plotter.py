@@ -75,8 +75,8 @@ def main():
     tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
 
     # tops, bottoms = ta.directional_change(data["Close"].to_numpy(), data["High"].to_numpy(), data["Low"].to_numpy(), 0.2)
-
-    fig = plot_tops_and_bottom(data, tops, bottoms, mode="close")
+    fig = plot_prices(data)
+    fig = plot_tops_and_bottom(fig, data, tops, bottoms)
     sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2)
     res = ta.naive_sup_res(tops, 0.02, "tops", 2)
 

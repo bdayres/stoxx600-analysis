@@ -28,6 +28,20 @@ def make_monkey(probability):
         return random.randint(0, 100) > probability
     return monkey_strat
 
+def make_breakout_oracle(sup, res):
+    def breakout_oracle(data : pd.DataFrame, current_position : int) -> int:
+        current_index = data.index[-1]
+        if current_position == 0:
+            for line in res:
+                if line[2] == current_index:
+                    return True
+        elif current_position == 1:
+            for line in sup:
+                if line[2] == current_index:
+                    return True
+        return False
+    return breakout_oracle
+
 def test_monkey(data : pd.DataFrame):
     gain, decisions = simulate(data, make_monkey(99), 0)
     buy_and_hold = data.iloc[-1]["Close"] / data.iloc[0]["Close"]

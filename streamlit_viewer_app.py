@@ -53,7 +53,7 @@ def render_sup_res(fig, data, tops, bottoms):
     res = ta.naive_sup_res(tops, sigma, "tops", min_challenge, fuse_tolerance)
     fig = pt.plot_sup_and_res(fig, data, sup, res)
 
-    return fig
+    return fig, sup, res
 
 def main():
 
@@ -124,6 +124,7 @@ def main():
             fig = pt.plot_prices(stock_values_df, style)
 
             tb_col, sr_col = st.columns(2)
+            sup, res = [], []
             show_sup_res = None
 
             with tb_col:
@@ -134,7 +135,7 @@ def main():
                 show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "pips")
             
             if show_sup_res and plot_type != "pips":
-                fig = render_sup_res(fig, stock_values_df, tops, bottoms)
+                fig, sup, res = render_sup_res(fig, stock_values_df, tops, bottoms)
             
             prob = st.number_input("Monkey trade probabilty", 0, 100, 95)
 
@@ -142,6 +143,9 @@ def main():
                 gain, decisions = sim.simulate(stock_values_df, sim.make_monkey(prob), 0)
                 st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {stock_values_df.iloc[-1]["Close"] / stock_values_df.iloc[0]["Close"]}")
                 fig = pt.plot_strategy(fig, decisions)
+
+            if st.button("Breakout Trading"):
+                gain, decisions(sim.simulate(stock_values_df, sim.make_breakout_oracle(sup, res)), 0)
 
             fig.update_yaxes(type=scale)
             st.plotly_chart(fig)
