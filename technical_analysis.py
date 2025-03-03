@@ -169,7 +169,7 @@ def naive_sup_res(points, sigma, type="tops", min_challenge=2, fuse_tolerance=0.
                 count += 1
             j += 1
         if count >= min_challenge:
-            sup_res.append([points[i][2], points[i][1], points[min(i + j + 1, len(points) - 1)][1]])
+            sup_res.append([points[i][2], points[i][1], points[min(i + j, len(points) - 1)][1]])
         i += 1
     return fuse_similar_sup_res(sup_res, fuse_tolerance)
 
