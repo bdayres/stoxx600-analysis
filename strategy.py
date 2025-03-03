@@ -46,10 +46,12 @@ class BreakoutSimple(Strategy):
             for line in self._res:
                 if len(self._data) > line[2] and idx[line[2]] == current_index:
                     self._switch_position(row)
+                    return
         elif self.position == 1:
             for line in self._sup:
                 if len(self._data) > line[2] and idx[line[2]] == current_index:
                     self._switch_position(row)
+                    return
 
 class LaplaceTrading(Strategy):
     def __init__(self, data : pd.DataFrame, tops : list, bottoms : list):
