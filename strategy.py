@@ -67,7 +67,9 @@ class LaplaceTrading(Strategy):
             for bottom in self._bottoms:
                 if len(self._data) > bottom[1] and idx[bottom[1]] == current_index:
                     self._switch_position(row)
+                    return
         elif self.position == 1:
             for top in self._tops:
                 if len(self._data) > top[1] and idx[top[1]] == current_index:
                     self._switch_position(row)
+                    return
