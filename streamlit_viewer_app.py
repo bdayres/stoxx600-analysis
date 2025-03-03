@@ -75,7 +75,7 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     elif strategy_choice == "laplace":
         strategy = stg.LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
     gain, decisions = simulate(data, strategy, 0)
-    st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]}")
+    st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]:,.2f}")
     if st.toggle("Show trades"):
         fig = pt.plot_strategy(fig, decisions)
     return fig
