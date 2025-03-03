@@ -67,6 +67,12 @@ def render_sup_res(fig, data, tops, bottoms):
 
     return fig
 
+def render_indicator(fig : go.Figure, data : pd.DataFrame):
+    if st.toggle("Show EMA"):
+        window = st.number_input("Window", 1)
+        fig = pt.plot_ema(fig, data, window)
+    return fig
+
 def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     strategy_choice = st.selectbox("Trading strategy", options=STRATEGY_MAP.keys(), format_func=lambda option: STRATEGY_MAP[option])
     strategy = None
@@ -169,6 +175,8 @@ def main():
             
             if show_sup_res and plot_type != "pips":
                 fig = render_sup_res(fig, stock_values_df, tops, bottoms)
+
+            render_indicator(fig, stock_values_df)
             
             render_strategies(fig, stock_values_df, tops, bottoms)
 

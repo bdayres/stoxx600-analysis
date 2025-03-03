@@ -67,20 +67,32 @@ def plot_strategy(fig : go.Figure, decisions):
         fig.add_vline(decision, line_color="green" if i % 2 == 0 else "red")
     return fig
 
+def plot_sma(fig : go.Figure, data : pd.DataFrame, window : int):
+    sma = data["Close"].rolling(window).mean()
+    fig.add_trace(go.Scatter(x=sma.index, y=sma, mode="lines", line=dict(color="yellow"), name="SMA"))
+    return fig
+
+def plot_ema(fig : go.Figure, data : pd.DataFrame, window : int):
+    ema = data["Close"].ewm(span=window, adjust=True).mean()
+    fig.add_trace(go.Scatter(x=ema.index, y=ema, mode="lines", line=dict(color="pink"), name="EMA"))
+    return fig
+
 def main():
     data = pd.read_csv("hsbc_daily.csv")
     data["Date"] = pd.to_datetime(data["Date"])
     data = data.set_index("Date")
 
-    tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
+    # tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
 
     # tops, bottoms = ta.directional_change(data["Close"].to_numpy(), data["High"].to_numpy(), data["Low"].to_numpy(), 0.2)
     fig = plot_prices(data)
-    fig = plot_tops_and_bottom(fig, data, tops, bottoms)
-    sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2)
-    res = ta.naive_sup_res(tops, 0.02, "tops", 2)
+    # fig = plot_tops_and_bottom(fig, data, tops, bottoms)
+    # sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2)
+    # res = ta.naive_sup_res(tops, 0.02, "tops", 2)
 
-    fig = plot_sup_and_res(fig, data, sup, res)
+    # fig = plot_sup_and_res(fig, data, sup, res)
+    fig = plot_sma(fig, data, 10)
+    fig = plot_ema(fig, data, 10)
 
     fig.show()
 
