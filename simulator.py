@@ -3,6 +3,9 @@ from typing import Callable
 import random
 import technical_analysis as ta
 import strategy as stg
+from strategies.monkey_trading import MonkeyTrading
+from strategies.breakout_simple import BreakoutSimple
+from strategies.laplace_demon import LaplaceTrading
 
 
 # def simulate(data : pd.DataFrame, strategy : Callable[[pd.DataFrame, int], int], lookback):
@@ -72,7 +75,7 @@ def simulate(data : pd.DataFrame, strategy : stg.Strategy, lookback : int):
 #     return god_trading
 
 def test_monkey(data : pd.DataFrame):
-    strategy = stg.MonkeyTrading(pd.DataFrame().reindex_like(data), 1.)
+    strategy = MonkeyTrading(pd.DataFrame().reindex_like(data), 1.)
     gain, decisions = simulate(data, strategy, 0)
     buy_and_hold = data.iloc[-1]["Close"] / data.iloc[0]["Close"]
     print(gain, buy_and_hold)
@@ -81,14 +84,14 @@ def test_breakout_oracle(data : pd.DataFrame):
     tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
     sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
     res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
-    strategy = stg.BreakoutSimple(pd.DataFrame().reindex_like(data), sup, res)
+    strategy = BreakoutSimple(pd.DataFrame().reindex_like(data), sup, res)
     gain, decisions = simulate(data, strategy, 1)
     print(gain)
 
 def test_god_trading(data : pd.DataFrame):
     # gain, decisions = simulate(data, make_god_trading(data), 1)
-    tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
-    strat = stg.LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
+    tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 1)
+    strat = LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
     gain, _ = simulate(data, strat, 0)
     print(gain)
 
@@ -97,5 +100,5 @@ if __name__ == '__main__':
     data["Date"] = pd.to_datetime(data["Date"])
     data = data.set_index("Date")
     # test_monkey(data)
-    test_breakout_oracle(data)
-    # test_god_trading(data)
+    # test_breakout_oracle(data)
+    test_god_trading(data)

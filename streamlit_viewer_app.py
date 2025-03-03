@@ -8,7 +8,11 @@ import plotter as pt
 import technical_analysis as ta
 
 from simulator import simulate
-import strategy as stg
+
+from strategies.breakout_simple import BreakoutSimple
+from strategies.monkey_trading import MonkeyTrading
+from strategies.laplace_demon import LaplaceTrading
+from strategies.breakout_optimized import BreakoutOptimized
 
 DIST_MAP = {
     1: "Euclidian Distance",
@@ -40,6 +44,7 @@ PRICE_MAP = {
 STRATEGY_MAP = {
     "monkey": "Monkey Trading",
     "breakout": "Breakout Oracle",
+    "breakoutopt": "Sigma Breakout",
     "laplace": "Laplace's Demon Trading"
 }
 
@@ -67,13 +72,18 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     strategy = None
     if strategy_choice == "monkey":
         probability = st.number_input("Monkey trade probabilty in %", 0., 100., 1., 0.1)
-        strategy = stg.MonkeyTrading(pd.DataFrame().reindex_like(data), probability)
+        strategy = MonkeyTrading(pd.DataFrame().reindex_like(data), probability)
     elif strategy_choice == "breakout":
         sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
         res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
-        strategy = stg.BreakoutSimple(pd.DataFrame().reindex_like(data), sup, res)
+        strategy = BreakoutSimple(pd.DataFrame().reindex_like(data), sup, res)
     elif strategy_choice == "laplace":
-        strategy = stg.LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
+        strategy = LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
+    elif strategy_choice == "breakoutopt":
+        sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
+        res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
+        sigma = st.number_input("Sigma", 0., None, 0.02)
+        strategy = BreakoutOptimized(pd.DataFrame().reindex_like(data), sup, res, sigma)
     gain, decisions = simulate(data, strategy, 0)
     st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]:,.2f}")
     if st.toggle("Show trades"):
