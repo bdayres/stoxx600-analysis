@@ -7,7 +7,8 @@ import plotly.graph_objects as go
 import plotter as pt
 import technical_analysis as ta
 
-import simulator as sim
+from simulator import simulate
+import strategy as stg
 
 DIST_MAP = {
     1: "Euclidian Distance",
@@ -39,7 +40,7 @@ PRICE_MAP = {
 STRATEGY_MAP = {
     "monkey": "Monkey Trading",
     "breakout": "Breakout Oracle",
-    "god": "God Trading"
+    "laplace": "Laplace's Demon Trading"
 }
 
 def render_sup_res(fig, data, tops, bottoms):
@@ -65,23 +66,21 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     strategy_choice = st.selectbox("Trading strategy", options=STRATEGY_MAP.keys(), format_func=lambda option: STRATEGY_MAP[option])
     strategy = None
     if strategy_choice == "monkey":
-        probability = st.number_input("Monkey trade probabilty", 0, 100, 99)
-        strategy = sim.make_monkey(probability)
+        probability = st.number_input("Monkey trade probabilty in %", 0., 100., 1., 0.1)
+        strategy = stg.MonkeyTrading(pd.DataFrame().reindex_like(data), probability)
     elif strategy_choice == "breakout":
-        strategy = sim.make_breakout_oracle(tops, bottoms)
-    elif strategy_choice == "god":
-        strategy = sim.make_god_trading(tops, bottoms)
-    gain, decisions = sim.simulate(data, strategy, 0)
+        sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2, 0)
+        res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
+        strategy = stg.BreakoutSimple(pd.DataFrame().reindex_like(data), sup, res)
+    elif strategy_choice == "laplace":
+        strategy = stg.LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
+    gain, decisions = simulate(data, strategy, 0)
     st.write(f"You multiplied your money by {gain}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]}")
     if st.toggle("Show trades"):
         fig = pt.plot_strategy(fig, decisions)
     return fig
 
-
-
-
 def main():
-
     st.set_page_config(
         page_title="Stoxx600 Visual Analyser"
     )
