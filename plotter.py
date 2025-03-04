@@ -73,3 +73,9 @@ def plot_ema(fig : go.Figure, data : pd.DataFrame, window : int):
     ema = data["Close"].ewm(span=window, adjust=True).mean()
     fig.add_trace(go.Scatter(x=ema.index, y=ema, mode="lines", line=dict(color="pink"), name="EMA"))
     return fig
+
+def plot_macd(fig : go.Figure, data : pd.DataFrame):
+    long_ema = data["Close"].ewm(span=26).mean()
+    short_ema = data["Close"].ewm(span=12).mean()
+    fig.add_trace(go.Scatter(x=long_ema.index, y=long_ema, mode="lines", line=dict(color="yellow"), name="Long EMA"))
+    fig.add_trace(go.Scatter(x=short_ema.index, y=short_ema, mode="lines", line=dict(color="pink"), name="Short EMA"))

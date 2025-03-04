@@ -70,9 +70,8 @@ def render_sup_res(fig, data, tops, bottoms):
     return fig
 
 def render_indicator(fig : go.Figure, data : pd.DataFrame):
-    if st.toggle("Show EMA"):
-        window = st.number_input("Window", 1)
-        fig = pt.plot_ema(fig, data, window)
+    if st.toggle("Show MACD"):
+        fig = pt.plot_macd(fig, data)
     return fig
 
 def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
