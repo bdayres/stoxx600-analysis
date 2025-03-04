@@ -9,8 +9,9 @@ class BullTrading(Strategy):
         self._bull_flags = find_flags_pennants_trendline(full_data["Close"].to_numpy(), order)[0]
         self._current_flag = FlagPattern(0, 0)
         self._macd = ta.get_macd(full_data)
-        self._max_macd = 10
+        self._max_macd = 20
         self._current_macd = 0
+        self._previous_macd = False
     
     def make_choice(self, row):
         super().make_choice(row)
@@ -28,7 +29,9 @@ class BullTrading(Strategy):
                 return
             elif self._macd.loc[row.name]:
                 self._current_macd += 1
-                if self._current_macd > self._max_macd:
+                if self._current_macd > self._max_macd or not self._previous_macd:
                     self._switch_position(row)
                     return
+            self._previous_macd = self._macd.loc[row.name]
+
                 
