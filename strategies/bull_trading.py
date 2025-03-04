@@ -14,7 +14,7 @@ class BullTrading(Strategy):
         if self.position == 0:
             for flag in self._bull_flags:
                 flag_end = flag.tip_x + flag.flag_width
-                if flag_end < len(self._data) and idx[flag.tip_x + flag.flag_width] == row.name:
+                if idx[flag.tip_x + flag.flag_width] == row.name:
                     self._current_flag = flag
                     self._switch_position(row)
                     return
