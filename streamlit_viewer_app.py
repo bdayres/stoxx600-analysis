@@ -46,7 +46,8 @@ STRATEGY_MAP = {
     "monkey": "Monkey Trading",
     "breakout": "Breakout Oracle",
     "breakoutopt": "Sigma Breakout",
-    "laplace": "Laplace's Demon Trading"
+    "laplace": "Laplace's Demon Trading",
+    "bull": "Bull Trading"
 }
 
 def render_sup_res(fig, data, tops, bottoms):
