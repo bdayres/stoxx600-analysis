@@ -102,8 +102,8 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     return fig
 
 def render_year_range(index : pd.DatetimeIndex):
-    min_date = index[0]
-    max_date = index[-1]
+    min_date = index[0].to_pydatetime()
+    max_date = index[-1].to_pydatetime()
     return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
 
 
