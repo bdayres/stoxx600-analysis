@@ -19,7 +19,7 @@ class BullTrading(Strategy):
                     self._switch_position(row)
                     return
         else:
-            if row.name > idx[self._current_flag.tip_x + self._current_flag.flag_width * 2]:
+            if row.name > idx[self._current_flag.tip_x + self._current_flag.flag_width + self._current_flag.tip_x - self._current_flag.base_x]:
                 self._switch_position(row)
                 return
                 
