@@ -101,6 +101,13 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         fig = pt.plot_strategy(fig, decisions)
     return fig
 
+def render_year_range(index : pd.DatetimeIndex):
+    min_date = index[0]
+    max_date = index[-1]
+    return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
+
+
+
 def main():
     st.set_page_config(
         page_title="Stoxx600 Visual Analyser"
@@ -123,6 +130,9 @@ def main():
         stock_values_df.set_index('Date', inplace=True)
         # start = st.date_input("Start", value='2020-01-01')
         # end = st.date_input("End", value='today')
+        start_date, end_date = render_year_range(stock_values_df.index)
+
+        stock_values_df = stock_values_df.loc[start_date:end_date]
 
         style_col, scale_col = st.columns(2)
 

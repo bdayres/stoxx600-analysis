@@ -13,7 +13,6 @@ class BullTrading(Strategy):
         idx = self._data.index
         if self.position == 0:
             for flag in self._bull_flags:
-                flag_end = flag.tip_x + flag.flag_width
                 if idx[flag.tip_x + flag.flag_width] == row.name:
                     self._current_flag = flag
                     self._switch_position(row)
