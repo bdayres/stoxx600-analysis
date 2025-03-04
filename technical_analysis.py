@@ -173,6 +173,11 @@ def naive_sup_res(points, sigma, type="tops", min_challenge=2, fuse_tolerance=0.
         i += 1
     return fuse_similar_sup_res(sup_res, fuse_tolerance)
 
+def get_macd(data : pd.DataFrame):
+    long_ema = data["Close"].ewm(span=26).mean()
+    short_ema = data["Close"].ewm(span=12).mean()
+    return long_ema > short_ema
+
 def test_rolling_window(close : pd.Series, idx : pd.Index, order):
     tops, bottoms = rolling_window(close.to_numpy(), order)
     close.plot()
@@ -216,8 +221,6 @@ def test_naive_sup_res(close : pd.Series, tops, bottoms, sigma, min_challenge):
     plt.hlines(y=[line[0] for line in res], xmin=[idx[line[1]] for line in res], xmax=[idx[line[2]] for line in res], colors="red")
     plt.hlines(y=[line[0] for line in sup], xmin=[idx[line[1]] for line in sup], xmax=[idx[line[2]] for line in sup], colors="green")
     plt.show()
-
-
 
 if __name__ == '__main__':
     hsbc = pd.read_csv("hsbc_daily.csv")
