@@ -4,12 +4,12 @@ import pandas as pd
 import technical_analysis.points as ta
 
 class BullTrading(Strategy):
-    def __init__(self, data : pd.DataFrame, full_data : pd.DataFrame, order : int):
+    def __init__(self, data : pd.DataFrame, full_data : pd.DataFrame, order : int, max_macd : int):
         super().__init__(data)
         self._bull_flags = find_flags_pennants_trendline(full_data["Close"].to_numpy(), order)[0]
         self._current_flag = FlagPattern(0, 0)
         self._macd = ta.get_macd(full_data)
-        self._max_macd = 5
+        self._max_macd = max_macd
         self._current_macd = 0
     
     def make_choice(self, row):

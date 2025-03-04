@@ -92,8 +92,13 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         sigma = st.number_input("Sigma", 0., None, 0.02)
         strategy = BreakoutOptimized(pd.DataFrame().reindex_like(data), sup, res, sigma)
     elif strategy_choice == "bull":
-        order = st.number_input("Order", 3, None)
-        strategy = BullTrading(pd.DataFrame().reindex_like(data), data, order)
+        order_col, macd_col = st.columns(2)
+        order, max_macd = 0, 0
+        with order_col:
+            order = st.number_input("Order", 3, None)
+        with macd_col:
+            max_macd = st.number_input("Max MACD", 3, None)
+        strategy = BullTrading(pd.DataFrame().reindex_like(data), data, order, max_macd)
     gain, decisions = simulate(data, strategy, 0)
     st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]:,.2f}")
     if st.toggle("Show trades"):

@@ -30,7 +30,7 @@ def test_god_trading(data : pd.DataFrame):
     print(gain)
 
 def test_bull_trading(data : pd.DataFrame):
-    strat = BullTrading(pd.DataFrame().reindex_like(data), data, 20)
+    strat = BullTrading(pd.DataFrame().reindex_like(data), data, 20, 20)
     gain, decisions = simulate(data, strat, 0)
     fig = pt.plot_prices(data)
     fig = pt.plot_strategy(fig, decisions)
