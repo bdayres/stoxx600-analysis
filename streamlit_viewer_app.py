@@ -13,6 +13,7 @@ from strategies.breakout_simple import BreakoutSimple
 from strategies.monkey_trading import MonkeyTrading
 from strategies.laplace_demon import LaplaceTrading
 from strategies.breakout_optimized import BreakoutOptimized
+from strategies.bull_trading import BullTrading
 
 DIST_MAP = {
     1: "Euclidian Distance",
@@ -90,6 +91,9 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
         sigma = st.number_input("Sigma", 0., None, 0.02)
         strategy = BreakoutOptimized(pd.DataFrame().reindex_like(data), sup, res, sigma)
+    elif strategy_choice == "bull":
+        order = st.number_input("Order", 3, None)
+        strategy = BullTrading(pd.DataFrame().reindex_like(data), data, order)
     gain, decisions = simulate(data, strategy, 0)
     st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]:,.2f}")
     if st.toggle("Show trades"):
