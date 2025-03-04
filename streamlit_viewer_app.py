@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 import plotter as pt
-import technical_analysis as ta
+import technical_analysis.points as ta
 
 from simulator import simulate
 

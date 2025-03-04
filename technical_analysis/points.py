@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 def rw_top(data: np.ndarray, curr_index: int, order: int) -> bool:
     if curr_index < order * 2 + 1:
@@ -177,61 +176,4 @@ def get_macd(data : pd.DataFrame):
     long_ema = data["Close"].ewm(span=26).mean()
     short_ema = data["Close"].ewm(span=12).mean()
     return long_ema > short_ema
-
-def test_rolling_window(close : pd.Series, idx : pd.Index, order):
-    tops, bottoms = rolling_window(close.to_numpy(), order)
-    close.plot()
-    for top in tops:
-        plt.plot(idx[top[1]], top[2], marker='o', color='green')
-
-    for bottom in bottoms:
-        plt.plot(idx[bottom[1]], bottom[2], marker='o', color='red')
-
-    plt.yscale('log')
-    plt.show()
-
-def test_directional_change(close : pd.Series, high : pd.Series, low : pd.Series, idx : pd.Index, sigma):
-    tops, bottoms = directional_change(close.to_numpy(), high.to_numpy(), low.to_numpy(), sigma)
-    close.plot()
-
-    for top in tops:
-        plt.plot(idx[top[1]], top[2], marker='o', color='green')
-
-    for bottom in bottoms:
-        plt.plot(idx[bottom[1]], bottom[2], marker='o', color='red')
-
-    plt.yscale('log')
-    plt.show()
-
-def test_pips(close : pd.Series, nb_points, measure):
-    points = pips(close.to_numpy(), nb_points, measure)
-    close.plot()
-
-    for point in points:
-        plt.plot(idx[point[1]], point[2], marker='o', color='green')
-    
-    plt.yscale('log')
-    plt.show()
-
-def test_naive_sup_res(close : pd.Series, tops, bottoms, sigma, min_challenge):
-    close.plot()
-    res = naive_sup_res(tops, sigma, type="tops", min_challenge=min_challenge)
-    sup = naive_sup_res(bottoms, sigma, type="bottoms", min_challenge=min_challenge)
-
-    plt.hlines(y=[line[0] for line in res], xmin=[idx[line[1]] for line in res], xmax=[idx[line[2]] for line in res], colors="red")
-    plt.hlines(y=[line[0] for line in sup], xmin=[idx[line[1]] for line in sup], xmax=[idx[line[2]] for line in sup], colors="green")
-    plt.show()
-
-if __name__ == '__main__':
-    hsbc = pd.read_csv("hsbc_daily.csv")
-    hsbc['Date'] = pd.to_datetime(hsbc['Date'])
-    hsbc.set_index('Date')
-    idx = hsbc.index
-
-    # tops, bottoms = rolling_window(hsbc['Close'], 20)
-    # test_naive_sup_res(hsbc['Close'], tops, bottoms, 0.02, 3)
-
-    # test_rolling_window(hsbc['Close'], idx, 100)
-    # test_directional_change(hsbc['Close'], hsbc['High'], hsbc['Low'], idx, 0.2)
-    test_pips(hsbc['Close'], 10, 3)
 

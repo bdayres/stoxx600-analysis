@@ -1,7 +1,4 @@
-from time import sleep
-import technical_analysis as ta
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 
 def plot_prices(df : pd.DataFrame, mode="close"):
@@ -76,26 +73,3 @@ def plot_ema(fig : go.Figure, data : pd.DataFrame, window : int):
     ema = data["Close"].ewm(span=window, adjust=True).mean()
     fig.add_trace(go.Scatter(x=ema.index, y=ema, mode="lines", line=dict(color="pink"), name="EMA"))
     return fig
-
-def main():
-    data = pd.read_csv("hsbc_daily.csv")
-    data["Date"] = pd.to_datetime(data["Date"])
-    data = data.set_index("Date")
-
-    # tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 10)
-
-    # tops, bottoms = ta.directional_change(data["Close"].to_numpy(), data["High"].to_numpy(), data["Low"].to_numpy(), 0.2)
-    fig = plot_prices(data)
-    # fig = plot_tops_and_bottom(fig, data, tops, bottoms)
-    # sup = ta.naive_sup_res(bottoms, 0.02, "bottoms", 2)
-    # res = ta.naive_sup_res(tops, 0.02, "tops", 2)
-
-    # fig = plot_sup_and_res(fig, data, sup, res)
-    fig = plot_sma(fig, data, 10)
-    fig = plot_ema(fig, data, 10)
-
-    fig.show()
-
-
-if __name__ == '__main__':
-    main()

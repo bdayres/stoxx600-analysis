@@ -1,7 +1,7 @@
-from strategy import Strategy
+from strategies.strategy import Strategy
 from flag import FlagPattern, find_flags_pennants_trendline
 import pandas as pd
-import technical_analysis as ta
+import technical_analysis.points as ta
 
 class BullTrading(Strategy):
     def __init__(self, data : pd.DataFrame, full_data : pd.DataFrame, order : int):

@@ -1,4 +1,4 @@
-from strategy import Strategy
+from strategies.strategy import Strategy
 import pandas as pd
 
 class LaplaceTrading(Strategy):

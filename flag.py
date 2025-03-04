@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
-from trendline import fit_trendlines_single
-from technical_analysis import rw_top, rw_bottom
+from technical_analysis.trendlines import fit_trendlines_single
+from technical_analysis.points import rw_top, rw_bottom
 import pandas as pd
 import matplotlib.pyplot as plt
 
