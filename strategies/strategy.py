@@ -16,7 +16,7 @@ class Strategy:
         else:
             self.position = 0
             self.gain *= row["Close"] / self._current_price
-            self._returns.append((row["Close"] / self._current_price) - 1)
+            self.returns.append((row["Close"] / self._current_price) - 1)
         self.decisions.append(row.name)
 
     def make_choice(self, row : pd.Series) -> int:
