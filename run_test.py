@@ -7,7 +7,7 @@ def main():
     data["Date"] = pd.to_datetime(data["Date"])
     data = data.set_index("Date")
 
-    ts.test_bull_trading(data)
+    ts.test_forest(data)
 
 if __name__ == "__main__":
     main()

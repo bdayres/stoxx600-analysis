@@ -6,6 +6,7 @@ from strategies.monkey_trading import MonkeyTrading
 from strategies.breakout_simple import BreakoutSimple
 from strategies.laplace_demon import LaplaceTrading
 from strategies.bull_trading import BullTrading
+from strategies.forest_signal import ForestSignal
 import plotter as pt
 
 def test_monkey(data : pd.DataFrame):
@@ -36,3 +37,7 @@ def test_bull_trading(data : pd.DataFrame):
     fig = pt.plot_strategy(fig, decisions)
     print(gain)
     fig.show()
+
+def test_forest(data : pd.DataFrame):
+    strat = ForestSignal(data)
+    

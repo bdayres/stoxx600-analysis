@@ -7,6 +7,7 @@ class Strategy:
         self.decisions = []
         self.position = 0
         self.gain = 1
+        self.returns = []
     
     def _switch_position(self, row : pd.Series):
         if self.position == 0:
@@ -15,6 +16,7 @@ class Strategy:
         else:
             self.position = 0
             self.gain *= row["Close"] / self._current_price
+            self._returns.append((row["Close"] / self._current_price) - 1)
         self.decisions.append(row.name)
 
     def make_choice(self, row : pd.Series) -> int:

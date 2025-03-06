@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import plotter as pt
 import technical_analysis.points as ta
 
-from simulator import simulate
+from simulator import simulate, compute_profit_factor
 
 from strategies.breakout_simple import BreakoutSimple
 from strategies.monkey_trading import MonkeyTrading
@@ -101,6 +101,7 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         strategy = BullTrading(pd.DataFrame().reindex_like(data), data, order, max_macd)
     gain, decisions = simulate(data, strategy, 0)
     st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]:,.2f}")
+    st.write(f"The profit factor is {compute_profit_factor(strategy)}")
     if st.toggle("Show trades"):
         fig = pt.plot_strategy(fig, decisions)
     return fig
@@ -109,8 +110,6 @@ def render_year_range(index : pd.DatetimeIndex):
     min_date = index[0].to_pydatetime()
     max_date = index[-1].to_pydatetime()
     return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
-
-
 
 def main():
     st.set_page_config(
