@@ -1,4 +1,4 @@
-from simulator import simulate
+from simulator import simulate, compute_profit_factor
 import technical_analysis.points as ta
 import pandas as pd
 
@@ -28,6 +28,7 @@ def test_god_trading(data : pd.DataFrame):
     tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), 1)
     strat = LaplaceTrading(pd.DataFrame().reindex_like(data), tops, bottoms)
     gain, _ = simulate(data, strat, 0)
+    print(compute_profit_factor(strat))
     print(gain)
 
 def test_bull_trading(data : pd.DataFrame):
@@ -39,5 +40,4 @@ def test_bull_trading(data : pd.DataFrame):
     fig.show()
 
 def test_forest(data : pd.DataFrame):
-    strat = ForestSignal(data)
-    
+    pass

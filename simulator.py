@@ -14,5 +14,6 @@ def compute_profit_factor(strategy : stg.Strategy):
         if ret > 0:
             gains += ret
         else:
-            loss += ret
+            loss -= ret
+    print(gains, loss)
     return gains / loss
