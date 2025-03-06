@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 
 def plot_prices(df : pd.DataFrame, mode="close"):
     idx = df.index
@@ -79,3 +80,6 @@ def plot_macd(fig : go.Figure, data : pd.DataFrame):
     short_ema = data["Close"].ewm(span=12).mean()
     fig.add_trace(go.Scatter(x=long_ema.index, y=long_ema, mode="lines", line=dict(color="yellow"), name="Long EMA"))
     fig.add_trace(go.Scatter(x=short_ema.index, y=short_ema, mode="lines", line=dict(color="pink"), name="Short EMA"))
+
+def plot_strategy_returns(returns : list[float]):
+    return px.histogram(returns)

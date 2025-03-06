@@ -104,6 +104,8 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     st.write(f"The profit factor is {compute_profit_factor(strategy)}")
     if st.toggle("Show trades"):
         fig = pt.plot_strategy(fig, decisions)
+    if st.toggle("Show returns histogram"):
+        st.plotly_chart(pt.plot_strategy_returns(strategy.returns))
     return fig
 
 def render_year_range(index : pd.DatetimeIndex):

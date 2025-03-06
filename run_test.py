@@ -8,7 +8,8 @@ def main():
     data = data.set_index("Date")
 
     # ts.test_forest(data)
-    ts.test_god_trading(data)
+    # ts.test_god_trading(data)
+    ts.test_breakout_oracle(data)
 
 if __name__ == "__main__":
     main()

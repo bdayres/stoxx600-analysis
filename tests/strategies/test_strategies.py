@@ -21,6 +21,8 @@ def test_breakout_oracle(data : pd.DataFrame):
     res = ta.naive_sup_res(tops, 0.02, "tops", 2, 0)
     strategy = BreakoutSimple(pd.DataFrame().reindex_like(data), sup, res)
     gain, decisions = simulate(data, strategy, 1)
+    pt.plot_strategy_returns(strategy.returns).show()
+
     print(gain)
 
 def test_god_trading(data : pd.DataFrame):
