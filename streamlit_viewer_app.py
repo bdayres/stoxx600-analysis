@@ -51,18 +51,17 @@ STRATEGY_MAP = {
     "bull": "Bull Trading"
 }
 
-def render_sup_res(fig, data, tops, bottoms):
-    challenge_col, sigma_col, fuse_col = st.columns(3)
-    min_challenge, sigma, fuse_tolerance = None, None, None
+def render_sup_res(fig, data, tops, bottoms, plot_type):
+    if st.toggle("Show tops and bottoms"):
+        fig = pt.plot_tops_and_bottom(fig, data, tops, bottoms)
     
-    with challenge_col:
-        min_challenge = st.number_input("Minimum Challenge", 1, None, 2, 1)
+    if not st.toggle("Show support and resistances", False, disabled=plot_type == "pips") or plot_type == "pips":
+        return fig
+
     
-    with sigma_col:
-        sigma = st.number_input("Margin", 0., None, 0.02, 0.01)
-    
-    with fuse_col:
-        fuse_tolerance = st.number_input("Fuse Tolerance", 0., None, 0.02, 0.01)
+    min_challenge = st.number_input("Minimum Challenge", 1, None, 2, 1)
+    sigma = st.number_input("Margin", 0., None, 0.02, 0.01)
+    fuse_tolerance = st.number_input("Fuse Tolerance", 0., None, 0.02, 0.01)
 
     sup = ta.naive_sup_res(bottoms, sigma, "bottoms", min_challenge, fuse_tolerance)
     res = ta.naive_sup_res(tops, sigma, "tops", min_challenge, fuse_tolerance)
@@ -101,7 +100,7 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
             max_macd = st.number_input("Max MACD", 3, None)
         strategy = BullTrading(pd.DataFrame().reindex_like(data), data, order, max_macd)
     gain, decisions = simulate(data, strategy, 0)
-    st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]["Close"] / data.iloc[0]["Close"]:,.2f}")
+    st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[0]['Close']:,.2f}")
     st.write(f"The profit factor is {compute_profit_factor(strategy)}")
     if st.toggle("Show trades"):
         fig = pt.plot_strategy(fig, decisions)
@@ -113,6 +112,35 @@ def render_year_range(index : pd.DatetimeIndex):
     min_date = index[0].to_pydatetime()
     max_date = index[-1].to_pydatetime()
     return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
+
+def render_style():
+
+    style = st.segmented_control("Style", options=STYLE_MAP.keys(), format_func=lambda option: STYLE_MAP[option], selection_mode="single", default="close")
+    scale = st.segmented_control("Scale", options=SCALE_MAP.keys(), format_func=lambda option: SCALE_MAP[option], selection_mode="single", default="linear")
+    
+    return style, scale
+
+def render_tops_bottoms(data : pd.DataFrame, plot_type : str):
+    tops, bottoms = None, None
+
+    if plot_type == "rw":
+        order = st.number_input("Order", min_value=1, step=1, value=10)
+        price_type = st.selectbox("Price Type", options = PRICE_MAP.keys(), format_func=lambda option: PRICE_MAP[option])
+        
+        if price_type == "hl":
+            tops, _ = ta.rolling_window(data["High"].to_numpy(), order)
+            _, bottoms = ta.rolling_window(data["Low"].to_numpy(), order)
+        else:
+            tops, bottoms = ta.rolling_window(data["Close"].to_numpy(), order)
+    elif plot_type == "dc":
+        sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
+        tops, bottoms = ta.directional_change(data["Close"].to_numpy(), data["High"].to_numpy(), data["Low"].to_numpy(), sigma)
+    elif plot_type == "pips":
+        nb_points = st.number_input("Number of Points", min_value=5, step=1, value=5)
+        distance_type = st.selectbox("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option])
+        
+        tops = ta.pips(data["Close"].to_numpy(), nb_points, distance_type)
+    return tops, bottoms
 
 @st.cache_data
 def get_name_df(_session : Session) -> pd.DataFrame :
@@ -126,12 +154,8 @@ def get_stock_symbol(_session : Session, name : str) -> str:
 def get_stock_data(_session : Session, symbol : str) -> pd.DataFrame:
     return _session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
 
-
-
 def main():
-    st.set_page_config(
-        page_title="Stoxx600 Visual Analyser"
-    )
+    st.set_page_config(page_title="Stoxx600 Visual Analyser")
 
     st.title("Stoxx600 Viewer App 💸")
 
@@ -141,7 +165,10 @@ def main():
     name_df = get_name_df(session)
     name = st.selectbox("Stock list", name_df["NAME"])
 
-    if name:
+    if not name:
+        return
+    
+    with st.sidebar:
         stock_values_df = get_stock_data(session, get_stock_symbol(session, name))
         stock_values_df['Date'] = pd.to_datetime(stock_values_df['Date'])
         stock_values_df.set_index('Date', inplace=True)
@@ -149,69 +176,24 @@ def main():
         start_date, end_date = render_year_range(stock_values_df.index)
         stock_values_df = stock_values_df.loc[start_date:end_date]
 
-        style_col, scale_col = st.columns(2)
+        style, scale = render_style()
 
-        style = None
-        scale = None
-
-        with style_col:
-            style = st.segmented_control("Style", options=STYLE_MAP.keys(), format_func=lambda option: STYLE_MAP[option], selection_mode="single", default="close")
-        with scale_col:
-            scale = st.segmented_control("Scale", options=SCALE_MAP.keys(), format_func=lambda option: SCALE_MAP[option], selection_mode="single", default="linear")
+        if not (style and scale):
+            return
+        
+        fig = pt.plot_prices(stock_values_df, style)
 
         plot_type = st.selectbox("Plot type", options = POINT_MAP.keys(), format_func=lambda option: POINT_MAP[option])
+        tops, bottoms = render_tops_bottoms(stock_values_df, plot_type)
+        fig = render_sup_res(fig, stock_values_df, tops, bottoms, plot_type)
 
-        if style and scale:
-            tops, bottoms = None, None
+        render_indicator(fig, stock_values_df)
+        
+        render_strategies(fig, stock_values_df, tops, bottoms)
 
-            if plot_type == "rw":
-                order_col, type_col = st.columns(2)
-                order, price_type = None, None
-                with order_col:
-                    order = st.number_input("Order", min_value=1, step=1, value=10)
-                with type_col:
-                    price_type = st.selectbox("Price Type", options = PRICE_MAP.keys(), format_func=lambda option: PRICE_MAP[option])
-                
-                if price_type == "hl":
-                    tops, _ = ta.rolling_window(stock_values_df["High"].to_numpy(), order)
-                    _, bottoms = ta.rolling_window(stock_values_df["Low"].to_numpy(), order)
-                else:
-                    tops, bottoms = ta.rolling_window(stock_values_df["Close"].to_numpy(), order)
-            elif plot_type == "dc":
-                sigma = st.number_input("Sigma", min_value=0., step=0.005, value=0.02)
-                tops, bottoms = ta.directional_change(stock_values_df["Close"].to_numpy(), stock_values_df["High"].to_numpy(), stock_values_df["Low"].to_numpy(), sigma)
-            elif plot_type == "pips":
-                npoint_col, dist_col = st.columns(2)
-                nb_points = None
-                distance_type = None
-                with npoint_col:
-                    nb_points = st.number_input("Number of Points", min_value=5, step=1, value=5)
-                with dist_col:
-                    distance_type = st.selectbox("Distance Measured", options=DIST_MAP.keys(), format_func=lambda option: DIST_MAP[option])
-                
-                tops = ta.pips(stock_values_df["Close"].to_numpy(), nb_points, distance_type)
-            
-            fig = pt.plot_prices(stock_values_df, style)
+        fig.update_yaxes(type=scale)
 
-            tb_col, sr_col = st.columns(2)
-            show_sup_res = None
-
-            with tb_col:
-                if st.toggle("Show tops and bottoms"):
-                    fig = pt.plot_tops_and_bottom(fig, stock_values_df, tops, bottoms)
-
-            with sr_col:
-                show_sup_res = st.toggle("Show support and resistances", False, disabled=plot_type == "pips")
-            
-            if show_sup_res and plot_type != "pips":
-                fig = render_sup_res(fig, stock_values_df, tops, bottoms)
-
-            render_indicator(fig, stock_values_df)
-            
-            render_strategies(fig, stock_values_df, tops, bottoms)
-
-            fig.update_yaxes(type=scale)
-            st.plotly_chart(fig)
+    st.plotly_chart(fig)
 
         
 main()
