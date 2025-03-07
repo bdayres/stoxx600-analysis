@@ -1,5 +1,6 @@
 import streamlit as st
 from snowflake.snowpark.functions import col
+from snowflake.snowpark.session import Session
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -113,6 +114,9 @@ def render_year_range(index : pd.DatetimeIndex):
     max_date = index[-1].to_pydatetime()
     return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
 
+def get_name_df(session : Session) -> pd.DataFrame :
+    return session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL").to_pandas()
+
 def main():
     st.set_page_config(
         page_title="Stoxx600 Visual Analyser"
@@ -123,8 +127,8 @@ def main():
     cnx = st.connection('snowflake')
     session = cnx.session()
 
-    stock_df = session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL")
-    name = st.selectbox("Stock list", stock_df.select(col("name")))
+    name_df = get_name_df(session)
+    name = st.selectbox("Stock list", name_df["name"])
 
     if name:
         symbol_df = session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{name}'").to_pandas()
