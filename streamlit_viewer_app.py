@@ -115,16 +115,16 @@ def render_year_range(index : pd.DatetimeIndex):
     return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
 
 @st.cache_data
-def get_name_df(session : Session) -> pd.DataFrame :
-    return session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL").to_pandas()
+def get_name_df(_session : Session) -> pd.DataFrame :
+    return _session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL").to_pandas()
 
 @st.cache_data
-def get_stock_symbol(session : Session, name : str) -> str:
-    return session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{name}'").to_pandas()["SYMBOL"].iloc[0]
+def get_stock_symbol(_session : Session, name : str) -> str:
+    return _session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{name}'").to_pandas()["SYMBOL"].iloc[0]
 
 @st.cache_data
-def get_stock_data(session : Session, symbol : str) -> pd.DataFrame:
-    return session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
+def get_stock_data(_session : Session, symbol : str) -> pd.DataFrame:
+    return _session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
 
 
 
