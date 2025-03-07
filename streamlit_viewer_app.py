@@ -139,7 +139,7 @@ def main():
     session = cnx.session()
 
     name_df = get_name_df(session)
-    name = st.selectbox("Stock list", name_df["name"])
+    name = st.selectbox("Stock list", name_df["NAME"])
 
     if name:
         stock_values_df = get_stock_data(session, get_stock_symbol(session, name))
