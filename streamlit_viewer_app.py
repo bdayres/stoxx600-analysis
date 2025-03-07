@@ -114,8 +114,19 @@ def render_year_range(index : pd.DatetimeIndex):
     max_date = index[-1].to_pydatetime()
     return st.slider("Sample Range", value=(min_date, max_date), min_value=min_date, max_value=max_date)
 
+@st.cache_data
 def get_name_df(session : Session) -> pd.DataFrame :
     return session.sql("SELECT * FROM TRADING.STOXX600.NAME_SYMBOL").to_pandas()
+
+@st.cache_data
+def get_stock_symbol(session : Session, name : str) -> str:
+    return session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{name}'").to_pandas()["SYMBOL"].iloc[0]
+
+@st.cache_data
+def get_stock_data(session : Session, symbol : str) -> pd.DataFrame:
+    return session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
+
+
 
 def main():
     st.set_page_config(
@@ -131,16 +142,11 @@ def main():
     name = st.selectbox("Stock list", name_df["name"])
 
     if name:
-        symbol_df = session.sql(f"SELECT SYMBOL FROM TRADING.STOXX600.NAME_SYMBOL WHERE NAME='{name}'").to_pandas()
-        symbol = symbol_df['SYMBOL'].iloc[0]
-        
-        stock_values_df = session.sql(f"SELECT * FROM TRADING.STOXX600.\"STOCK_{symbol}\"").to_pandas()
+        stock_values_df = get_stock_data(session, get_stock_symbol(session, name))
         stock_values_df['Date'] = pd.to_datetime(stock_values_df['Date'])
         stock_values_df.set_index('Date', inplace=True)
-        # start = st.date_input("Start", value='2020-01-01')
-        # end = st.date_input("End", value='today')
-        start_date, end_date = render_year_range(stock_values_df.index)
 
+        start_date, end_date = render_year_range(stock_values_df.index)
         stock_values_df = stock_values_df.loc[start_date:end_date]
 
         style_col, scale_col = st.columns(2)
