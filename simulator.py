@@ -3,11 +3,10 @@ import pandas as pd
 import strategies.strategy as stg
 import streamlit as st
 
-@st.cache_data
-def simulate(data : pd.DataFrame, _strategy : stg.Strategy, lookback : int):
+def simulate(data : pd.DataFrame, strategy : stg.Strategy, lookback : int):
     for i in range(lookback, len(data)):
-        _strategy.make_choice(data.iloc[i])
-    return _strategy.gain, _strategy.decisions
+        strategy.make_choice(data.iloc[i])
+    return strategy.gain, strategy.decisions
 
 def compute_profit_factor(strategy : stg.Strategy):
     gains = 0.
