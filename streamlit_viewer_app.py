@@ -80,6 +80,7 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     strategy_choice = st.selectbox("Trading strategy", options=STRATEGY_MAP.keys(), format_func=lambda option: STRATEGY_MAP[option])
     strategy = None
     lookback = 0
+    progress_bar = st.progress(0., text="Simulating")
     if strategy_choice == "monkey":
         probability = st.number_input("Monkey trade probabilty in %", 0., 100., 1., 0.1)
         strategy = MonkeyTrading(pd.DataFrame().reindex_like(data), probability)
@@ -106,7 +107,7 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         train_years = st.number_input("Training Years", value=5)
         lookback = 365 * train_years
         strategy = ForestSignal(data.head(lookback).copy())
-    gain, decisions = simulate(data, strategy, lookback)
+    gain, decisions = simulate(data, strategy, lookback, progress_bar)
     st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[0]['Close']:,.2f}")
     st.write(f"The profit factor is {compute_profit_factor(strategy)}")
     if st.toggle("Show trades"):
