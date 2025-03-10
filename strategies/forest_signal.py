@@ -52,7 +52,7 @@ class ForestSignal(Strategy):
     def make_choice(self, row):
         super().make_choice(row)
         self._compute_indicator()
-        print(row.name)
+        # print(row.name)
         y_pred = self._model.predict(self._data[['RSI', 'MACD', 'Upper Band', 'ATR']])
         choice = y_pred[-1]
         if self.position == 0 and choice:

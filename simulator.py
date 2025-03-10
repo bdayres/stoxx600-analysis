@@ -7,7 +7,7 @@ from streamlit.delta_generator import DeltaGenerator
 def simulate(data : pd.DataFrame, strategy : stg.Strategy, lookback : int, progress_bar : Optional[DeltaGenerator] = None):
     for i in range(lookback, len(data)):
         strategy.make_choice(data.iloc[i])
-        if progress_bar:
+        if progress_bar and i % 250 == 0:
             progress_bar.progress(i / len(data), "Simulating")
     return strategy.gain, strategy.decisions
 
