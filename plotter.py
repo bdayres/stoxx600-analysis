@@ -92,3 +92,11 @@ def plot_macd(fig : go.Figure, data : pd.DataFrame):
 @st.cache_data
 def plot_strategy_returns(returns : list[float]):
     return px.histogram(returns)
+
+def plot_indicators(fig : go.Figure, data : pd.DataFrame, indicators : list[str]):
+    for indicator in indicators:
+        if not indicator in data.columns:
+            print(f"Indicator {indicator} not found")
+            continue
+        fig.add_trace(go.Scatter(x=data.index, y=data[indicator], mode="lines", name=indicator))
+    return fig

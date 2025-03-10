@@ -3,3 +3,4 @@ __pycache__
 *.toml
 *.ipynb
 .streamlit
+.devcontainer

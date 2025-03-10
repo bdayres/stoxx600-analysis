@@ -1,55 +1,69 @@
 from strategies.strategy import Strategy
 import pandas as pd
-from ta.momentum import RSIIndicator
-from ta.trend import MACD
-from ta.volatility import BollingerBands
-from sklearn.ensemble import RandomForestRegressor
-import matplotlib.pyplot as plt
+from technical_analysis.indicators import macd, rsi, atr, bollinger_band
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_score
 
 class ForestSignal(Strategy):
     def __init__(self, data : pd.DataFrame):
         super().__init__(data)
 
         self._compute_indicator()
+        self._compute_signal()
 
-        X = self._data[['RSI', 'MACD', 'BB_Low', 'BB_High', 'SMA_50', 'SMA_200']]
-        y = self._data['Buy_Signal']
-        y.cumsum().plot()
-        plt.show()
-        
+        self._data.dropna(inplace=True)
 
-        # Diviser en ensemble d'entraînement et de test
-        # self._model = RandomForestRegressor(n_estimators=100, random_state=42)
-        # self._model.fit(X, y)
+        X = self._data[['RSI', 'MACD', 'Upper Band', 'ATR']]
+        y = self._data['Target']
+
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, shuffle=True)
+
+        # self._model = RandomForestClassifier(n_estimators=100)
+        # self._model.fit(X_train, y_train)
+        # y_pred = self._model.predict(X_test)
+
+        # accuracy = accuracy_score(y_test, y_pred)
+        # print(f'Accuracy: {accuracy}')
+
+        # tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+
+        # print(f"True positive : {tp}\nTrue negative : {tn}\nFalse positive {fp}\nFalse negative {fn}")
+        # print(f"TP ratio {tp / (tp + fn)}\nTN ratio {tn / (tn + fp)}")
+
+        self._model = RandomForestClassifier(n_estimators=100)
+        self._model.fit(X, y)
+        self._cons = 0
+
 
     def _compute_indicator(self):
 
-        # RSI (Relative Strength Index)
-        self._data["RSI"] = RSIIndicator(self._data["Close"]).rsi()
-
-        # MACD (Moving Average Convergence Divergence)
-        self._data["MACD"] = MACD(self._data["Close"]).macd()
-
-        # Bandes de Bollinger
-        bb = BollingerBands(self._data["Close"])
-        self._data["BB_High"] = bb.bollinger_hband()
-        self._data["BB_Low"] = bb.bollinger_lband()
-
-        # Moyennes mobiles
-        self._data["SMA_50"] = self._data["Close"].rolling(window=50).mean()
-        self._data["SMA_200"] = self._data["Close"].rolling(window=200).mean()
+        self._data = atr(self._data, 10)
+        self._data = rsi(self._data, 10)
+        self._data = macd(self._data)
+        self._data = bollinger_band(self._data, 20)
         
-        self._data["Buy_Signal"] = (
-                     (self._data["MACD"] > 0)
-                     ).astype(int)
-        self._data.dropna(inplace=True)
+
+    def _compute_signal(self):
+        self._data["Diff"] = self._data["Close"].diff(20).shift(-20)
+        self._data["Target"] = self._data["Diff"] > self._data["Close"] * 0.05
+
 
     def make_choice(self, row):
         super().make_choice(row)
-        
-        # self._compute_indicator()
-        
-        # prediction = self._model.predict(self._data[row.name])
-
-        # print(f"Prédiction pour la nouvelle entrée : {prediction[0]}")
-    
+        self._compute_indicator()
+        print(row.name)
+        y_pred = self._model.predict(self._data[['RSI', 'MACD', 'Upper Band', 'ATR']])
+        choice = y_pred[-1]
+        if self.position == 0 and choice:
+            self._switch_position(row)
+            self._cons = 10
+            return
+        elif self.position == 1:
+            if choice:
+                self._cons = 10
+            else:
+                self._cons -= 1
+            if self._cons <= 0:
+                self._switch_position(row)
+                return

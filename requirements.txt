@@ -6,3 +6,5 @@ snowflake-snowpark-python[pandas]
 plotly
 streamlit
 matplotlib
+ta
+scikit-learn

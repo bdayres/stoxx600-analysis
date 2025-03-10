@@ -15,6 +15,7 @@ from strategies.monkey_trading import MonkeyTrading
 from strategies.laplace_demon import LaplaceTrading
 from strategies.breakout_optimized import BreakoutOptimized
 from strategies.bull_trading import BullTrading
+from strategies.forest_signal import ForestSignal
 
 DIST_MAP = {
     1: "Euclidian Distance",
@@ -48,7 +49,8 @@ STRATEGY_MAP = {
     "breakout": "Breakout Oracle",
     "breakoutopt": "Sigma Breakout",
     "laplace": "Laplace's Demon Trading",
-    "bull": "Bull Trading"
+    "bull": "Bull Trading",
+    "forest": "Signal Forest"
 }
 
 def render_sup_res(fig, data, tops, bottoms, plot_type):
@@ -77,6 +79,7 @@ def render_indicator(fig : go.Figure, data : pd.DataFrame):
 def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
     strategy_choice = st.selectbox("Trading strategy", options=STRATEGY_MAP.keys(), format_func=lambda option: STRATEGY_MAP[option])
     strategy = None
+    lookback = 0
     if strategy_choice == "monkey":
         probability = st.number_input("Monkey trade probabilty in %", 0., 100., 1., 0.1)
         strategy = MonkeyTrading(pd.DataFrame().reindex_like(data), probability)
@@ -99,7 +102,11 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         with macd_col:
             max_macd = st.number_input("Max MACD", 3, None)
         strategy = BullTrading(pd.DataFrame().reindex_like(data), data, order, max_macd)
-    gain, decisions = simulate(data, strategy, 0)
+    elif strategy_choice == "forest":
+        train_years = st.number_input("Training Years", value=5)
+        lookback = 365 * train_years
+        strategy = ForestSignal(data.head(lookback).copy())
+    gain, decisions = simulate(data, strategy, lookback)
     st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[0]['Close']:,.2f}")
     st.write(f"The profit factor is {compute_profit_factor(strategy)}")
     if st.toggle("Show trades"):

@@ -42,4 +42,9 @@ def test_bull_trading(data : pd.DataFrame):
     fig.show()
 
 def test_forest(data : pd.DataFrame):
-    pass
+    strat = ForestSignal(data.head(365 * 15).copy())
+    gain, decisions = simulate(data, strat, 365 * 15)
+    fig = pt.plot_prices(data)
+    fig = pt.plot_strategy(fig, decisions)
+    print(gain)
+    fig.show()

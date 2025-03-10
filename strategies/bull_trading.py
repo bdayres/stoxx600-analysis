@@ -1,14 +1,14 @@
 from strategies.strategy import Strategy
 from flag import FlagPattern, find_flags_pennants_trendline
 import pandas as pd
-import technical_analysis.points as ta
+from technical_analysis.indicators import macd
 
 class BullTrading(Strategy):
     def __init__(self, data : pd.DataFrame, full_data : pd.DataFrame, order : int, max_macd : int):
         super().__init__(data)
         self._bull_flags = find_flags_pennants_trendline(full_data["Close"].to_numpy(), order)[0]
         self._current_flag = FlagPattern(0, 0)
-        self._macd = ta.get_macd(full_data)
+        self._data = macd(self._data)
         self._max_macd = max_macd
         self._current_macd = 0
     
@@ -26,11 +26,11 @@ class BullTrading(Strategy):
             # if row.name > idx[self._current_flag.tip_x + self._current_flag.flag_width + self._current_flag.tip_x - self._current_flag.base_x]:
             #     self._switch_position(row)
             #     return
-            if self._macd.loc[row.name]:
+            if self._data["MACD"].loc[row.name]:
                 self._current_macd += 1
                 if self._current_macd > self._max_macd or not self._previous_macd:
                     self._switch_position(row)
                     return
-        self._previous_macd = self._macd.loc[row.name]
+        self._previous_macd = self._data["MACD"].loc[row.name]
 
                 

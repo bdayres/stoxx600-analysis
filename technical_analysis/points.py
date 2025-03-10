@@ -172,8 +172,3 @@ def naive_sup_res(points, sigma, type="tops", min_challenge=2, fuse_tolerance=0.
         i += 1
     return fuse_similar_sup_res(sup_res, fuse_tolerance)
 
-def get_macd(data : pd.DataFrame):
-    long_ema = data["Close"].ewm(span=26).mean()
-    short_ema = data["Close"].ewm(span=12).mean()
-    return long_ema > short_ema
-
