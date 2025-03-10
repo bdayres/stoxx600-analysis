@@ -34,6 +34,8 @@ class ForestSignal(Strategy):
         self._model = RandomForestClassifier(n_estimators=100)
         self._model.fit(X, y)
         self._cons = 0
+        self._max_macd = 3
+        self._current_macd = 0
 
 
     def _compute_indicator(self):
@@ -60,10 +62,9 @@ class ForestSignal(Strategy):
             self._cons = 10
             return
         elif self.position == 1:
-            if choice:
-                self._cons = 10
-            else:
-                self._cons -= 1
-            if self._cons <= 0:
-                self._switch_position(row)
-                return
+            if self._data["MACD"].loc[row.name]:
+                self._current_macd += 1
+                if self._current_macd > self._max_macd or not self._previous_macd:
+                    self._switch_position(row)
+                    return
+        self._previous_macd = self._data["MACD"].loc[row.name]
