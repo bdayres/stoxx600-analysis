@@ -34,8 +34,6 @@ class ForestSignal(Strategy):
         self._model = RandomForestClassifier(n_estimators=100)
         self._model.fit(X, y)
         self._cons = 0
-        self._max_macd = 3
-        self._current_macd = 0
 
 
     def _compute_indicator(self):
@@ -48,23 +46,21 @@ class ForestSignal(Strategy):
 
     def _compute_signal(self):
         self._data["Diff"] = self._data["Close"].diff(20).shift(-20)
-        self._data["Target"] = self._data["Diff"] > self._data["Close"] * 0.05
+        # self._data["Target"] = self._data["Diff"] > self._data["Close"] * 0.05
+        self._data["Target"] = 0
+        self._data.loc[self._data["Diff"] > self._data["Close"] * 0.05, "Target"] = 1
+        self._data.loc[self._data["Diff"] < -self._data["Close"] * 0.05, "Target"] = -1
 
 
     def make_choice(self, row):
         super().make_choice(row)
         self._compute_indicator()
-        # print(row.name)
         y_pred = self._model.predict(self._data[['RSI', 'MACD', 'Upper Band', 'ATR']])
         choice = y_pred[-1]
-        if self.position == 0 and choice:
+        if self.position == 0 and choice == 1:
             self._switch_position(row)
             self._cons = 10
             return
-        elif self.position == 1:
-            if self._data["MACD"].loc[row.name]:
-                self._current_macd += 1
-                if self._current_macd > self._max_macd or not self._previous_macd:
-                    self._switch_position(row)
-                    return
-        self._previous_macd = self._data["MACD"].loc[row.name]
+        elif self.position == 1 and choice == -1:
+            self._switch_position(row)
+            return
