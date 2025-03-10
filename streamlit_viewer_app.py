@@ -108,7 +108,7 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         lookback = 365 * train_years
         strategy = ForestSignal(data.head(lookback).copy())
     gain, decisions = simulate(data, strategy, lookback, progress_bar)
-    st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[0]['Close']:,.2f}")
+    st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[lookback]['Close']:,.2f}")
     st.write(f"The profit factor is {compute_profit_factor(strategy)}")
     if st.toggle("Show trades"):
         fig = pt.plot_strategy(fig, decisions)
