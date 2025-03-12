@@ -107,13 +107,19 @@ def render_strategies(fig : go.Figure, data : pd.DataFrame, tops, bottoms):
         train_years = st.number_input("Training Years", value=5)
         lookback = 365 * train_years
         strategy = ForestSignal(data.head(lookback).copy())
-    gain, decisions = simulate(data, strategy, lookback, progress_bar)
-    st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[lookback]['Close']:,.2f}")
-    st.write(f"The profit factor is {compute_profit_factor(strategy)}")
-    if st.toggle("Show trades"):
-        fig = pt.plot_strategy(fig, decisions)
-    if st.toggle("Show returns histogram"):
-        st.plotly_chart(pt.plot_strategy_returns(strategy.returns))
+    
+    show_trade = st.toggle("Show trades")
+    show_hist = st.toggle("Show returns histogram")
+    
+    if st.button("Simulate"):
+        gain, decisions = simulate(data, strategy, lookback, progress_bar)
+        if show_trade:
+            fig = pt.plot_strategy(fig, decisions)
+        if show_hist:
+            st.plotly_chart(pt.plot_strategy_returns(strategy.returns))
+        st.write(f"You multiplied your money by {gain:,.2f}, buy and hold would have yielded {data.iloc[-1]['Close'] / data.iloc[lookback]['Close']:,.2f}")
+        st.write(f"The profit factor is {compute_profit_factor(strategy)}")
+        
     return fig
 
 def render_year_range(index : pd.DatetimeIndex):

@@ -1,5 +1,6 @@
 from typing import Optional
 import pandas as pd
+import numpy as np
 
 import strategies.strategy as stg
 from streamlit.delta_generator import DeltaGenerator
@@ -7,8 +8,8 @@ from streamlit.delta_generator import DeltaGenerator
 def simulate(data : pd.DataFrame, strategy : stg.Strategy, lookback : int, progress_bar : Optional[DeltaGenerator] = None):
     for i in range(lookback, len(data)):
         strategy.make_choice(data.iloc[i])
-        if progress_bar and i % 250 == 0:
-            progress_bar.progress(i / len(data), "Simulating")
+        progress_bar.progress(i / len(data), "Simulating")
+    progress_bar.progress(1., "Simulation Over")
     return strategy.gain, strategy.decisions
 
 def compute_profit_factor(strategy : stg.Strategy):
@@ -19,4 +20,6 @@ def compute_profit_factor(strategy : stg.Strategy):
             gains += ret
         else:
             loss -= ret
-    return gains / loss
+    if loss != 0:
+        return gains / loss
+    return 10e3

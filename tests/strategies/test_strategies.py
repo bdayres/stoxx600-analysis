@@ -43,8 +43,9 @@ def test_bull_trading(data : pd.DataFrame):
 
 def test_forest(data : pd.DataFrame):
     strat = ForestSignal(data.head(365 * 15).copy())
-    gain, decisions = simulate(data, strat, 365 * 15)
-    fig = pt.plot_prices(data)
-    fig = pt.plot_strategy(fig, decisions)
-    print(gain)
-    fig.show()
+    strat._mean_confusion()
+    # gain, decisions = simulate(data, strat, 365 * 15)
+    # fig = pt.plot_prices(data)
+    # fig = pt.plot_strategy(fig, decisions)
+    # print(gain)
+    # fig.show()
